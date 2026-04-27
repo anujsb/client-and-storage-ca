@@ -1,7 +1,7 @@
-import { auth } from "@/lib/auth/config";
+import { auth } from "@/lib/auth/auth";
 import { redirect } from "next/navigation";
 
-// Use in server components + API routes to get the current session
+// Use in server components to get the current session
 export async function getSession() {
     return await auth();
 }
@@ -20,35 +20,4 @@ export async function getTenantId(): Promise<string> {
         throw new Error("UNAUTHORIZED");
     }
     return session.user.tenantId;
-}
-
-// Extend next-auth types
-declare module "next-auth" {
-    interface User {
-        role: string;
-        tenantId: string;
-        tenantName: string;
-        tenantSlug: string;
-    }
-    interface Session {
-        user: {
-            id: string;
-            email: string;
-            name: string;
-            role: string;
-            tenantId: string;
-            tenantName: string;
-            tenantSlug: string;
-        };
-    }
-}
-
-declare module "next-auth/jwt" {
-    interface JWT {
-        id: string;
-        role: string;
-        tenantId: string;
-        tenantName: string;
-        tenantSlug: string;
-    }
 }
