@@ -511,11 +511,11 @@ Each task is one focused, completable unit. Check off as done.
 - [x] **T-22** Build `/clients/[clientId]` page — overview + tabs (Documents / Works / Payments)
 
 ### Phase 3 — Employees
-- [ ] **T-23** Write `src/types/employee.ts` + Zod schema
-- [ ] **T-24** Write `src/services/employee.service.ts`
-- [ ] **T-25** Build `/api/employees` + `/api/employees/[employeeId]` routes
-- [ ] **T-26** Build `EmployeeTable.tsx` + `EmployeeForm.tsx`
-- [ ] **T-27** Build `/employees` page — list + "currently holds" files column
+- [x] **T-23** Write `src/types/employee.ts` + Zod schema
+- [x] **T-24** Write `src/services/employee.service.ts`
+- [x] **T-25** Build `/api/employees` + `/api/employees/[employeeId]` routes
+- [x] **T-26** Build `EmployeeTable.tsx` + `EmployeeForm.tsx`
+- [x] **T-27** Build `/employees` page — list + "currently holds" files column
 
 ### Phase 4 — Storage Locations
 - [ ] **T-28** Write `src/types/storage.ts` + Zod schema
@@ -586,8 +586,8 @@ Each task is one focused, completable unit. Check off as done.
 
 ## UI Design Principles
 
-- Light theme — white backgrounds, zinc/slate neutrals
-- Single accent: **Indigo** (`indigo-600`)
+- Light theme 
+- Single accent: 
 - Status always visible via color-coded badges
 - shadcn/ui components everywhere — no custom if shadcn has it
 - Every list: search bar + filter + empty state + loading skeleton

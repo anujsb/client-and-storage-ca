@@ -28,7 +28,7 @@ export function ClientForm({ initialData }: ClientFormProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<CreateClientInput>({
-    resolver: zodResolver(clientSchema) as any,
+    resolver: zodResolver(clientSchema as any),
     defaultValues: {
       name: initialData?.name || "",
       pan: initialData?.pan || "",
