@@ -23,7 +23,7 @@ export default async function EditEmployeePage({ params }: EditEmployeePageProps
         title="Edit Employee"
         description={`Updating information for ${employee.name}`}
       />
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+      <div className="bg-white p-8 rounded-[24px] border border-border-base shadow-soft">
         <EmployeeForm initialData={employee} />
       </div>
     </div>

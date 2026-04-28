@@ -172,17 +172,22 @@ export function ClientForm({ initialData }: ClientFormProps) {
           )}
         />
 
-        <div className="flex justify-end gap-4">
+        <div className="flex justify-end gap-4 pt-4 border-t border-border-light">
           <Button
             type="button"
             variant="outline"
+            className="rounded-xl px-6 h-11 border-border-base text-text-muted hover:bg-bg-main"
             onClick={() => router.push("/clients")}
             disabled={isLoading}
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={isLoading} className="bg-indigo-600 hover:bg-indigo-700">
-            {isLoading ? "Saving..." : initialData ? "Save Changes" : "Create Client"}
+          <Button 
+            type="submit" 
+            disabled={isLoading} 
+            className="bg-brand-600 hover:bg-brand-700 text-white rounded-xl px-8 h-11 shadow-sm"
+          >
+            {isLoading ? "Saving..." : initialData ? "Save Changes" : "Create Client Profile"}
           </Button>
         </div>
       </form>

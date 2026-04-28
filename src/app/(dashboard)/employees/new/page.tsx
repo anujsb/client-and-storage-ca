@@ -8,7 +8,7 @@ export default function NewEmployeePage() {
         title="Add Employee"
         description="Add a new staff member for document assignment and checkout tracking."
       />
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+      <div className="bg-white p-8 rounded-[24px] border border-border-base shadow-soft">
         <EmployeeForm />
       </div>
     </div>

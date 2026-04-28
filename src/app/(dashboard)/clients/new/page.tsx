@@ -9,7 +9,7 @@ export default function NewClientPage() {
         description="Enter the details of the new client to add them to your firm."
       />
       
-      <div className="bg-white p-6 rounded-lg border shadow-sm">
+      <div className="bg-white p-8 rounded-[24px] border border-border-base shadow-soft">
         <ClientForm />
       </div>
     </div>

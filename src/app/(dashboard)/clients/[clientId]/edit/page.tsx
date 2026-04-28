@@ -29,7 +29,7 @@ export default async function EditClientPage({ params }: EditClientPageProps) {
         description={`Updating information for ${client.name} (${client.clientCode})`}
       />
       
-      <div className="bg-white p-6 rounded-lg border shadow-sm">
+      <div className="bg-white p-8 rounded-[24px] border border-border-base shadow-soft">
         <ClientForm initialData={client} />
       </div>
     </div>

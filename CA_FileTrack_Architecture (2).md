@@ -584,27 +584,44 @@ Each task is one focused, completable unit. Check off as done.
 
 ---
 
-## UI Design Principles
+## UI Design Principles (Premium Data-Rich Aesthetic)
 
-- Light theme 
-- Single accent: 
-- Status always visible via color-coded badges
-- shadcn/ui components everywhere — no custom if shadcn has it
-- Every list: search bar + filter + empty state + loading skeleton
-- Dialogs only for quick actions (checkout, checkin, confirm delete) — not for full pages
+### 1. Primary Color Palette (Tailwind-compatible)
+- **Brand (Primary Blue):**
+  - `--brand-50: #eff6ff` (Light backgrounds, hover states)
+  - `--brand-500: #3b82f6` (Primary buttons, active icons)
+  - `--brand-600: #2563eb` (Deep brand color)
+  - `--brand-900: #1e3a8a` (Headings, bold text)
+- **Neutral (Slate):**
+  - `--bg-main: #f8fafc` (The global background color)
+  - `--border-light: #f1f5f9` (Subtle dividers)
+  - `--border-base: #e2e8f0` (Main card/input borders)
+  - `--text-muted: #64748b` (Helper text, secondary labels)
+  - `--text-dark: #0f172a` (Primary body text)
 
-## Status Badge Color Reference
+### 2. Status Color Tokens
+| Status Type | Background (10%) | Text & Border | Hex |
+|---|---|---|---|
+| In Office / Paid / Success | `bg-green-50` | `text-green-600` | `#10b981` |
+| Checked Out / Partial / Review | `bg-amber-50` | `text-amber-600` | `#f59e0b` |
+| Missing / Unpaid / Alert | `bg-red-50` | `text-red-600` | `#ef4444` |
+| In Progress / Task Active | `bg-blue-50` | `text-blue-600` | `#3b82f6` |
+| Pending / Default | `bg-slate-50` | `text-slate-600` | `#64748b` |
 
-| Status | Color |
-|---|---|
-| `in_office` | Green |
-| `checked_out` | Amber |
-| `missing` | Red |
-| `returned_to_client` | Gray |
-| Work `pending` | Slate |
-| Work `in_progress` | Blue |
-| Work `under_review` | Amber |
-| Work `completed` | Green |
-| Payment `unpaid` | Red |
-| Payment `partial` | Amber |
-| Payment `paid` | Green |
+### 3. Typography & Spacing
+- **Font Family:** Inter, system-ui, sans-serif.
+- **Base Text Size:** 14px (0.875rem) for body text.
+- **Border Radius:** 0.75rem (12px) for cards, 1.5rem (24px) for dashboard containers.
+- **Shadows:** `0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)` (Soft Shadow).
+
+### 4. Component Guidelines
+- **Cards:** White bg, `#e2e8f0` border, soft shadow.
+- **Badges:** Rounded (8px), weight 500, with a matching status color dot indicator.
+- **Tables:** Minimalist headers, uppercase, small tracking, hover row interactivity.
+- **Background Pattern:** Subtle dot grid (radial gradient at 32px intervals).
+
+### 5. Mobile Adaptation
+- Convert sidebars to bottom nav/hamburger.
+- Turn tables into stacked list cards.
+- FAB for critical actions (Log Document, New Task).
+

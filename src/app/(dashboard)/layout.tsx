@@ -10,7 +10,7 @@ export default async function DashboardLayout({
     const session = await requireAuth();
 
     return (
-        <div className="flex h-screen bg-zinc-50 overflow-hidden">
+        <div className="flex h-screen bg-bg-main bg-dot-pattern overflow-hidden">
             <Sidebar />
             <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
                 <Topbar

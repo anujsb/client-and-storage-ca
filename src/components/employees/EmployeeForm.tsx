@@ -132,7 +132,7 @@ export function EmployeeForm({ initialData }: EmployeeFormProps) {
           <Button
             type="submit"
             disabled={isLoading}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white"
+            className="bg-brand-600 hover:bg-brand-700 text-white rounded-xl px-6 h-11"
           >
             {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             {isEditing ? "Save Changes" : "Add Employee"}

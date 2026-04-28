@@ -35,31 +35,39 @@ export function Sidebar() {
     };
 
     return (
-        <aside className="w-56 shrink-0 flex flex-col bg-white border-r border-zinc-200 h-full">
-            {/* Logo */}
-            <div className="h-14 flex items-center px-5 border-b border-zinc-200">
-                <span className="text-sm font-semibold tracking-tight text-zinc-900">
-                    CA<span className="text-indigo-600">FileTrack</span>
-                </span>
+        <aside className="w-60 shrink-0 flex flex-col bg-white border-r border-border-base h-full shadow-soft z-10">
+            {/* Logo area */}
+            <div className="h-16 flex items-center px-6 border-b border-border-light">
+                <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center">
+                        <FolderOpen className="w-5 h-5 text-white" />
+                    </div>
+                    <span className="text-base font-bold tracking-tight text-brand-900">
+                        CA<span className="text-brand-600">FileTrack</span>
+                    </span>
+                </div>
             </div>
 
-            {/* Main nav */}
-            <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+            {/* Main navigation */}
+            <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+                <div className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-4 px-2">
+                    Main Menu
+                </div>
                 {navItems.map(({ label, href, icon: Icon }) => (
                     <Link
                         key={href}
                         href={href}
                         className={cn(
-                            "flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                            "flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium transition-all duration-200",
                             isActive(href)
-                                ? "bg-indigo-50 text-indigo-700"
-                                : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+                                ? "bg-brand-50 text-brand-600 shadow-sm"
+                                : "text-text-muted hover:bg-bg-main hover:text-text-dark"
                         )}
                     >
                         <Icon
                             className={cn(
-                                "w-4 h-4 shrink-0",
-                                isActive(href) ? "text-indigo-600" : "text-zinc-400"
+                                "w-4.5 h-4.5 shrink-0 transition-colors",
+                                isActive(href) ? "text-brand-600" : "text-text-muted group-hover:text-text-dark"
                             )}
                         />
                         {label}
@@ -67,23 +75,23 @@ export function Sidebar() {
                 ))}
             </nav>
 
-            {/* Bottom nav */}
-            <div className="px-3 pb-4 space-y-0.5 border-t border-zinc-100 pt-3">
+            {/* Bottom items */}
+            <div className="px-4 pb-6 space-y-1 pt-4 border-t border-border-light">
                 {bottomItems.map(({ label, href, icon: Icon }) => (
                     <Link
                         key={href}
                         href={href}
                         className={cn(
-                            "flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                            "flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium transition-all duration-200",
                             isActive(href)
-                                ? "bg-indigo-50 text-indigo-700"
-                                : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+                                ? "bg-brand-50 text-brand-600 shadow-sm"
+                                : "text-text-muted hover:bg-bg-main hover:text-text-dark"
                         )}
                     >
                         <Icon
                             className={cn(
-                                "w-4 h-4 shrink-0",
-                                isActive(href) ? "text-indigo-600" : "text-zinc-400"
+                                "w-4.5 h-4.5 shrink-0",
+                                isActive(href) ? "text-brand-600" : "text-text-muted"
                             )}
                         />
                         {label}
