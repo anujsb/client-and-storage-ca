@@ -4,10 +4,8 @@ import bcrypt from "bcryptjs"
 import { eq } from "drizzle-orm"
 import { db } from "@/lib/db"
 import { users } from "@/lib/db/schema"
-import authConfig from "@/lib/auth/auth.config"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  ...authConfig,
   session: { strategy: "jwt" },
   trustHost: true,
 
@@ -61,10 +59,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
-        token.role = user.role
-        token.tenantId = user.tenantId
-        token.tenantName = user.tenantName
-        token.tenantSlug = user.tenantSlug
+        token.role = (user as any).role
+        token.tenantId = (user as any).tenantId
+        token.tenantName = (user as any).tenantName
+        token.tenantSlug = (user as any).tenantSlug
       }
       return token
     },

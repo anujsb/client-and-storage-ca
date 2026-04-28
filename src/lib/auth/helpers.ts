@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth/auth";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
 // Use in server components to get the current session
