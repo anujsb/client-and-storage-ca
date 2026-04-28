@@ -1,42 +1,71 @@
-import type { NextAuthConfig } from "next-auth";
+import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import { eq } from "drizzle-orm";
+import bcrypt from "bcryptjs";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import authConfig from "./auth.config";
 
-/**
- * auth.config.ts — edge-safe config only.
- * No DB/ORM imports here. This is what proxy.ts imports.
- * The full auth.ts (with DB queries) is used everywhere else.
- */
-export default {
+export const { handlers, signIn, signOut, auth } = NextAuth({
+    ...authConfig,
+    session: { strategy: "jwt" },
     providers: [
-        // Provider listed here so the proxy knows about it,
-        // but the actual authorize() logic lives in auth.ts
         Credentials({
+            name: "credentials",
             credentials: {
                 email: { label: "Email", type: "email" },
                 password: { label: "Password", type: "password" },
             },
-            // authorize is intentionally empty here — handled in auth.ts
-            async authorize() {
-                return null;
+            async authorize(credentials) {
+                if (!credentials?.email || !credentials?.password) return null;
+
+                const user = await db.query.users.findFirst({
+                    where: eq(users.email, credentials.email as string),
+                    with: { tenant: true },
+                });
+
+                if (!user) return null;
+
+                const passwordMatch = await bcrypt.compare(
+                    credentials.password as string,
+                    user.passwordHash
+                );
+
+                if (!passwordMatch) return null;
+
+                return {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                    role: user.role,
+                    tenantId: user.tenantId,
+                    tenantName: user.tenant.name,
+                    tenantSlug: user.tenant.slug,
+                };
             },
         }),
     ],
-    pages: {
-        signIn: "/login",
-    },
     callbacks: {
-        authorized({ auth, request: { nextUrl } }) {
-            const isLoggedIn = !!auth?.user;
-            const isLoginPage = nextUrl.pathname.startsWith("/login");
-
-            if (isLoginPage) {
-                // Redirect logged-in users away from /login
-                if (isLoggedIn) return Response.redirect(new URL("/", nextUrl));
-                return true;
+        ...authConfig.callbacks,
+        async jwt({ token, user }) {
+            if (user) {
+                token.id = user.id;
+                token.role = (user as any).role;
+                token.tenantId = (user as any).tenantId;
+                token.tenantName = (user as any).tenantName;
+                token.tenantSlug = (user as any).tenantSlug;
             }
-
-            // All other routes require auth
-            return isLoggedIn;
+            return token;
+        },
+        async session({ session, token }) {
+            if (session.user) {
+                session.user.id = token.id as string;
+                session.user.role = token.role as string;
+                session.user.tenantId = token.tenantId as string;
+                session.user.tenantName = token.tenantName as string;
+                session.user.tenantSlug = token.tenantSlug as string;
+            }
+            return session;
         },
     },
-} satisfies NextAuthConfig;
+});

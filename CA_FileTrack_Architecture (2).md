@@ -487,7 +487,7 @@ Each task is one focused, completable unit. Check off as done.
 - [x] **T-02** Install + configure shadcn/ui (button, input, table, dialog, badge, dropdown-menu, select, form, toast, tabs, skeleton)
 - [x] **T-03** Install Drizzle ORM + drizzle-kit, configure Neon DB connection
 - [x] **T-04** Write full DB schema in `src/lib/db/schema.ts`
-- [ ] **T-05** Run first migration, verify all tables exist in Neon console
+- [x] **T-05** Run first migration, verify all tables exist in Neon console
 - [x] **T-06** Setup NextAuth v5 — credentials provider (email + password, tenant-scoped)
 - [x] **T-07** Write `middleware.ts` — protect all `/(dashboard)` routes
 - [x] **T-08** Write seed script — create one test tenant + owner user
@@ -500,15 +500,15 @@ Each task is one focused, completable unit. Check off as done.
 - [x] **T-13** Build `/login` page — form + NextAuth `signIn()`
 
 ### Phase 2 — Clients
-- [ ] **T-14** Write `src/types/client.ts` + `src/lib/validations/client.ts` (Zod)
-- [ ] **T-15** Write `src/services/client.service.ts` — list, getById, create (auto code), update, delete
-- [ ] **T-16** Build `GET /POST /api/clients`
-- [ ] **T-17** Build `GET/PATCH/DELETE /api/clients/[clientId]`
-- [ ] **T-18** Build `ClientTable.tsx` — columns: code, name, PAN, phone, date added
-- [ ] **T-19** Build `ClientForm.tsx` — add/edit with validation
-- [ ] **T-20** Build `/clients` page — table + search bar + Add button
-- [ ] **T-21** Build `/clients/new` page
-- [ ] **T-22** Build `/clients/[clientId]` page — overview + tabs (Documents / Works / Payments)
+- [x] **T-14** Write `src/types/client.ts` + `src/lib/validations/client.ts` (Zod)
+- [x] **T-15** Write `src/services/client.service.ts` — list, getById, create (auto code), update, delete
+- [x] **T-16** Build `GET /POST /api/clients`
+- [x] **T-17** Build `GET/PATCH/DELETE /api/clients/[clientId]`
+- [x] **T-18** Build `ClientTable.tsx` — columns: code, name, PAN, phone, date added
+- [x] **T-19** Build `ClientForm.tsx` — add/edit with validation
+- [x] **T-20** Build `/clients` page — table + search bar + Add button
+- [x] **T-21** Build `/clients/new` page
+- [x] **T-22** Build `/clients/[clientId]` page — overview + tabs (Documents / Works / Payments)
 
 ### Phase 3 — Employees
 - [ ] **T-23** Write `src/types/employee.ts` + Zod schema

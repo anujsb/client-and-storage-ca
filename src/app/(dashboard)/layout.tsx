@@ -15,7 +15,7 @@ export default async function DashboardLayout({
             <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
                 <Topbar
                     firmName={session.user.tenantName}
-                    userName={session.user.name}
+                    userName={session.user.name || "User"}
                 />
                 <main className="flex-1 overflow-y-auto p-6">{children}</main>
             </div>
