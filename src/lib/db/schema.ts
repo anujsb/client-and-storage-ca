@@ -19,6 +19,14 @@ export const workStatusEnum = pgEnum("work_status", [
     "completed",
 ]);
 
+export const workPriorityEnum = pgEnum("work_priority", [
+    "low",
+    "normal",
+    "medium",
+    "high",
+    "urgent",
+]);
+
 export const filingTypeEnum = pgEnum("filing_type", [
     "ITR",
     "GST",
@@ -170,10 +178,16 @@ export const works = pgTable("works", {
     employeeId: uuid("employee_id").references(() => employees.id, {
         onDelete: "set null",
     }),
+    title: text("title").notNull(),
     filingType: filingTypeEnum("filing_type").notNull(),
     customFilingType: text("custom_filing_type"), // used when filingType = 'custom'
     status: workStatusEnum("status").notNull().default("pending"),
+    priority: workPriorityEnum("priority").notNull().default("normal"),
     description: text("description"),
+    tags: jsonb("tags").$type<string[]>(),
+    subTasks: jsonb("sub_tasks").$type<Array<{ id: string; title: string; completed: boolean; assigneeId?: string }>>(),
+    activityLog: jsonb("activity_log").$type<Array<{ id: string; type: string; message: string; timestamp: string; userId: string; userName: string }>>(),
+    timeTracking: jsonb("time_tracking").$type<{ estimatedMinutes?: number; loggedMinutes?: number }>(),
     startedAt: timestamp("started_at"),
     dueDate: timestamp("due_date"),
     completedAt: timestamp("completed_at"),

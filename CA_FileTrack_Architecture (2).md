@@ -543,13 +543,13 @@ Each task is one focused, completable unit. Check off as done.
 - [x] **T-46** Wire checkout/checkin into `/documents` page and `/documents/[documentId]`
 
 ### Phase 7 — Works
-- [ ] **T-47** Write `src/types/work.ts` + Zod schema
-- [ ] **T-48** Write `src/services/work.service.ts`
-- [ ] **T-49** Build `/api/works` + `[workId]` routes
-- [ ] **T-50** Build `WorkStatusBadge.tsx`
-- [ ] **T-51** Build `WorkTable.tsx` — client, employee, filing type, status, due date
-- [ ] **T-52** Build `WorkForm.tsx` — link client, employee, documents, filing type
-- [ ] **T-53** Build `/works` page — active works with status filter
+- [x] **T-47** Write `src/types/work.ts` + Zod schema
+- [x] **T-48** Write `src/services/work.service.ts`
+- [x] **T-49** Build `/api/works` + `[workId]` routes
+- [x] **T-50** Build `WorkStatusBadge.tsx`
+- [x] **T-51** Build `WorkTable.tsx` / `WorksBoardClient.tsx`
+- [x] **T-52** Build `WorkForm.tsx` — link client, employee, documents, filing type
+- [x] **T-53** Build `/works` page — active works with status filter
 
 ### Phase 8 — Payments
 - [ ] **T-54** Write `src/types/payment.ts` + Zod schema
