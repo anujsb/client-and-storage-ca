@@ -1,5 +1,6 @@
 import { DocumentStatusBadge } from "./DocumentStatusBadge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useRouter } from "next/navigation";
 
 interface ActiveCheckout {
     id: string;
@@ -37,6 +38,8 @@ export function DocumentTable({ documents }: DocumentTableProps) {
             .toUpperCase();
     };
 
+    const router = useRouter();
+
     return (
         <div className="w-full">
             <table className="w-full text-left text-[13px]">
@@ -58,7 +61,11 @@ export function DocumentTable({ documents }: DocumentTableProps) {
                         </tr>
                     ) : (
                         documents.map((doc) => (
-                            <tr key={doc.id} className="hover:bg-brand-50/50 transition-colors">
+                            <tr 
+                                key={doc.id} 
+                                onClick={() => router.push(`/documents/${doc.id}`)}
+                                className="hover:bg-brand-50/50 transition-colors cursor-pointer"
+                            >
                                 <td className="px-5 py-3.5 align-top">
                                     <div className="text-brand-600 font-semibold text-[13px]">{doc.docCode}</div>
                                     <div className="text-brand-900 font-bold mt-0.5">{doc.description || doc.docType}</div>

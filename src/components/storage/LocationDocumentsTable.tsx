@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Filter, ArrowRight, Lightbulb, Search, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 
 interface DocumentData {
     id: string;
@@ -22,6 +23,7 @@ interface LocationDocumentsTableProps {
 export function LocationDocumentsTable({ locationId, locationName }: LocationDocumentsTableProps) {
     const [documents, setDocuments] = useState<DocumentData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const router = useRouter();
 
     useEffect(() => {
         const fetchDocs = async () => {
@@ -120,7 +122,11 @@ export function LocationDocumentsTable({ locationId, locationName }: LocationDoc
                             </tr>
                         ) : (
                             documents.map((doc, idx) => (
-                                <tr key={idx} className="hover:bg-brand-50/50 transition-colors">
+                                <tr 
+                                    key={idx} 
+                                    onClick={() => router.push(`/documents/${doc.id}`)}
+                                    className="hover:bg-brand-50/50 transition-colors cursor-pointer"
+                                >
                                     <td className="px-5 py-3.5 align-top">
                                         <div className="text-brand-600 font-semibold text-[13px]">{doc.docCode}</div>
                                         <div className="text-brand-900 font-bold mt-0.5">{doc.name}</div>

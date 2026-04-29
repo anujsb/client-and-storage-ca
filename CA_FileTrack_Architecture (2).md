@@ -526,21 +526,21 @@ Each task is one focused, completable unit. Check off as done.
 - [x] **T-33** Build `/locations` page
 
 ### Phase 5 — Documents
-- [ ] **T-34** Write `src/types/document.ts` + Zod schema
-- [ ] **T-35** Write `src/services/document.service.ts` — list, getById, create (auto code), update, delete
-- [ ] **T-36** Build `/api/documents` + `[documentId]` routes
-- [ ] **T-37** Build `DocumentStatusBadge.tsx` — green/amber/red/gray
-- [ ] **T-38** Build `DocumentTable.tsx` — code, client, type, status, location or holder
-- [ ] **T-39** Build `DocumentForm.tsx` — with LocationPicker
-- [ ] **T-40** Build `/documents` page — global list with status filter tabs
+- [x] **T-34** Write `src/types/document.ts` + Zod schema
+- [x] **T-35** Write `src/services/document.service.ts` — list, getById, create (auto code), update, delete
+- [x] **T-36** Build `/api/documents` + `[documentId]` routes
+- [x] **T-37** Build `DocumentStatusBadge.tsx` — green/amber/red/gray
+- [x] **T-38** Build `DocumentTable.tsx` — code, client, type, status, location or holder
+- [x] **T-39** Build `DocumentForm.tsx` — with LocationPicker
+- [x] **T-40** Build `/documents` page — global list with status filter tabs
 
 ### Phase 6 — Checkout System
-- [ ] **T-41** Write `src/services/checkout.service.ts` — checkOut, checkIn, getActive
-- [ ] **T-42** Build `POST /api/documents/[documentId]/checkout`
-- [ ] **T-43** Build `PATCH /api/documents/[documentId]/checkout` (check in)
-- [ ] **T-44** Build `CheckoutDialog.tsx` — pick employee, enter purpose
-- [ ] **T-45** Build `CheckinDialog.tsx` — confirm return, set new storage location
-- [ ] **T-46** Wire checkout/checkin into `/documents` page and `/documents/[documentId]`
+- [x] **T-41** Write `src/services/checkout.service.ts` — checkOut, checkIn, getActive
+- [x] **T-42** Build `POST /api/documents/[documentId]/checkout`
+- [x] **T-43** Build `PATCH /api/documents/[documentId]/checkout` (check in)
+- [x] **T-44** Build `CheckoutDialog.tsx` — pick employee, enter purpose
+- [x] **T-45** Build `CheckinDialog.tsx` — confirm return, set new storage location
+- [x] **T-46** Wire checkout/checkin into `/documents` page and `/documents/[documentId]`
 
 ### Phase 7 — Works
 - [ ] **T-47** Write `src/types/work.ts` + Zod schema

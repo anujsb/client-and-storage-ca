@@ -12,10 +12,14 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { CheckoutDialog } from "@/components/documents/CheckoutDialog";
+import { CheckinDialog } from "@/components/documents/CheckinDialog";
 
 export function DocumentDetailClient({ documentId }: { documentId: string }) {
     const [doc, setDoc] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+    const [isCheckinOpen, setIsCheckinOpen] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -36,6 +40,15 @@ export function DocumentDetailClient({ documentId }: { documentId: string }) {
         };
         fetchDoc();
     }, [documentId]);
+
+    const handleRefresh = () => {
+        setIsLoading(true);
+        fetch(`/api/documents/${documentId}`)
+            .then((res) => res.json())
+            .then((data) => setDoc(data))
+            .catch(() => toast.error("Error reloading document"))
+            .finally(() => setIsLoading(false));
+    };
 
     if (isLoading) {
         return <div className="p-8 text-center text-text-muted">Loading document details...</div>;
@@ -115,13 +128,23 @@ export function DocumentDetailClient({ documentId }: { documentId: string }) {
                     <div className="bg-white rounded-[24px] border border-border-base shadow-sm p-6">
                         <h3 className="text-[15px] font-bold text-brand-900 tracking-tight mb-4">Action Command Center</h3>
                         <div className="grid grid-cols-4 gap-4">
-                            <Button variant="outline" className="h-auto py-4 flex-col gap-3 rounded-2xl border-border-base hover:border-amber-200 hover:bg-amber-50">
+                            <Button 
+                                variant="outline" 
+                                className="h-auto py-4 flex-col gap-3 rounded-2xl border-border-base hover:border-amber-200 hover:bg-amber-50"
+                                onClick={() => setIsCheckoutOpen(true)}
+                                disabled={doc.status === "checked_out"}
+                            >
                                 <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center">
                                     <LogOut className="w-5 h-5 ml-0.5" />
                                 </div>
                                 <span className="font-bold text-[13px] text-brand-900">Check Out</span>
                             </Button>
-                            <Button variant="outline" className="h-auto py-4 flex-col gap-3 rounded-2xl border-border-base hover:border-green-200 hover:bg-green-50">
+                            <Button 
+                                variant="outline" 
+                                className="h-auto py-4 flex-col gap-3 rounded-2xl border-border-base hover:border-green-200 hover:bg-green-50"
+                                onClick={() => setIsCheckinOpen(true)}
+                                disabled={doc.status !== "checked_out"}
+                            >
                                 <div className="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
                                     <LogIn className="w-5 h-5 mr-0.5" />
                                 </div>
@@ -263,6 +286,21 @@ export function DocumentDetailClient({ documentId }: { documentId: string }) {
                     </div>
                 </div>
             </div>
+
+            <CheckoutDialog 
+                documentId={documentId} 
+                open={isCheckoutOpen} 
+                onOpenChange={setIsCheckoutOpen} 
+                onSuccess={handleRefresh} 
+            />
+
+            <CheckinDialog 
+                documentId={documentId} 
+                currentLocationId={doc.locationId}
+                open={isCheckinOpen} 
+                onOpenChange={setIsCheckinOpen} 
+                onSuccess={handleRefresh} 
+            />
         </div>
     );
 }
