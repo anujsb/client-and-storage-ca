@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
+import { DM_Sans } from "next/font/google"
 
-const inter = Inter({
+
+const dmSans = DM_Sans({
+  variable: "--font-sans",
   subsets: ["latin"],
-  variable: "--font-inter",
-});
+  weight: ["300", "400", "500"],
+})
 
 export const metadata: Metadata = {
   title: "CA FileTrack",
@@ -21,7 +23,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} h-full antialiased`}
+      className={`${dmSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
         {children}
