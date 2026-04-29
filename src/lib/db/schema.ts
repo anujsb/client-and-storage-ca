@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, boolean, integer, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, boolean, integer, pgEnum, jsonb } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
@@ -126,7 +126,11 @@ export const documents = pgTable("documents", {
         .references(() => clients.id, { onDelete: "cascade" }),
     docCode: text("doc_code").notNull(), // C-0001-D-01, etc.
     docType: text("doc_type").notNull(), // free text — ITR, GST, invoice, etc.
+    yearPeriod: text("year_period"), // e.g. "FY 2022-23"
+    pagesVolume: text("pages_volume"), // e.g. "142 Pages (1 Vol)"
     description: text("description"),
+    tags: jsonb("tags").$type<string[]>(),
+    customFields: jsonb("custom_fields").$type<Record<string, string>>(),
     status: documentStatusEnum("status").notNull().default("in_office"),
     locationId: uuid("location_id").references(() => storageLocations.id, {
         onDelete: "set null",
