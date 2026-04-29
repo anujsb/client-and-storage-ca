@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Edit, Eye } from "lucide-react";
+import { MoreHorizontal, Edit, Eye, Users } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,

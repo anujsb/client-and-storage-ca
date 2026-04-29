@@ -1,6 +1,7 @@
 import { requireAuth } from "@/lib/auth/helpers";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { Topbar } from "@/components/layout/Topbar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export default async function DashboardLayout({
     children,
@@ -10,15 +11,15 @@ export default async function DashboardLayout({
     const session = await requireAuth();
 
     return (
-        <div className="flex h-screen bg-bg-main bg-dot-pattern overflow-hidden">
-            <Sidebar />
-            <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-                <Topbar
-                    firmName={session.user.tenantName}
-                    userName={session.user.name || "User"}
-                />
-                <main className="flex-1 overflow-y-auto p-6">{children}</main>
-            </div>
-        </div>
+        <SidebarProvider>
+            <TooltipProvider>
+                <div className="flex h-screen bg-bg-main bg-dot-pattern overflow-hidden w-full">
+                    <Sidebar user={session.user} />
+                    <SidebarInset className="flex flex-col flex-1 min-w-0 overflow-hidden bg-transparent">
+                        <main className="flex-1 overflow-y-auto p-10">{children}</main>
+                    </SidebarInset>
+                </div>
+            </TooltipProvider>
+        </SidebarProvider>
     );
 }

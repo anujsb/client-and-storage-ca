@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -137,9 +139,11 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-bg-main text-text-dark font-sans text-[14px];
   }
+
   html {
     @apply font-sans;
   }

@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, UserRound, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface Employee {
   id: string;

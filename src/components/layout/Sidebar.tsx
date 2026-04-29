@@ -1,32 +1,62 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 import {
     LayoutDashboard,
     Users,
     FolderOpen,
-    Briefcase,
+    Database,
+    ListTodo,
     CreditCard,
     UserCheck,
-    Settings,
+    LogOut,
+    Building2,
+    ChevronUp,
+    User2,
 } from "lucide-react";
+
+import {
+    Sidebar as ShadcnSidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+    SidebarRail,
+} from "@/components/ui/sidebar";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { NotificationBell } from "@/components/shared/NotificationBell";
 
 const navItems = [
     { label: "Dashboard", href: "/", icon: LayoutDashboard },
-    { label: "Clients", href: "/clients", icon: Users },
-    { label: "Documents", href: "/documents", icon: FolderOpen },
-    { label: "Works", href: "/works", icon: Briefcase },
-    { label: "Payments", href: "/payments", icon: CreditCard },
-    { label: "Employees", href: "/employees", icon: UserCheck },
+    { label: "Client Registry", href: "/clients", icon: Users },
+    { label: "Document Registry", href: "/documents", icon: FolderOpen },
+    { label: "Storage Locations", href: "/locations", icon: Database },
+    { label: "Work/Task Board", href: "/works", icon: ListTodo },
+    { label: "Payments & Billing", href: "/payments", icon: CreditCard },
+    { label: "Employee Directory", href: "/employees", icon: UserCheck },
 ];
 
-const bottomItems = [
-    { label: "Settings", href: "/settings", icon: Settings },
-];
+interface AppSidebarProps {
+    user: {
+        name?: string | null;
+        email?: string | null;
+        image?: string | null;
+    };
+}
 
-export function Sidebar() {
+export function Sidebar({ user }: AppSidebarProps) {
     const pathname = usePathname();
 
     const isActive = (href: string) => {
@@ -34,70 +64,120 @@ export function Sidebar() {
         return pathname.startsWith(href);
     };
 
+    const initials = user?.name
+        ?.split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2) || "U";
+
     return (
-        <aside className="w-60 shrink-0 flex flex-col bg-white border-r border-border-base h-full shadow-soft z-10">
-            {/* Logo area */}
-            <div className="h-16 flex items-center px-6 border-b border-border-light">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center">
-                        <FolderOpen className="w-5 h-5 text-white" />
+        <ShadcnSidebar collapsible="icon" className="border-r border-border-base bg-white">
+
+            {/* Header / Logo */}
+            <SidebarHeader className="h-20 flex flex-row items-center justify-between px-4 py-6">
+                <div className="flex items-center gap-3 overflow-hidden">
+                    <div className="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center shrink-0 border border-brand-100">
+                        <Building2 className="w-6 h-6 text-brand-600" />
                     </div>
-                    <span className="text-base font-bold tracking-tight text-brand-900">
-                        CA<span className="text-brand-600">FileTrack</span>
-                    </span>
+                    <div className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
+                        <span className="text-[15px] font-bold text-brand-900 truncate tracking-tight">
+                            CA Firm Management
+                        </span>
+                    </div>
                 </div>
-            </div>
-
-            {/* Main navigation */}
-            <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-                <div className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-4 px-2">
-                    Main Menu
+                <div className="group-data-[collapsible=icon]:hidden">
+                    <NotificationBell />
                 </div>
-                {navItems.map(({ label, href, icon: Icon }) => (
-                    <Link
-                        key={href}
-                        href={href}
-                        className={cn(
-                            "flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium transition-all duration-200",
-                            isActive(href)
-                                ? "bg-brand-50 text-brand-600 shadow-sm"
-                                : "text-text-muted hover:bg-bg-main hover:text-text-dark"
-                        )}
-                    >
-                        <Icon
-                            className={cn(
-                                "w-4.5 h-4.5 shrink-0 transition-colors",
-                                isActive(href) ? "text-brand-600" : "text-text-muted group-hover:text-text-dark"
-                            )}
-                        />
-                        {label}
-                    </Link>
-                ))}
-            </nav>
+            </SidebarHeader>
 
-            {/* Bottom items */}
-            <div className="px-4 pb-6 space-y-1 pt-4 border-t border-border-light">
-                {bottomItems.map(({ label, href, icon: Icon }) => (
-                    <Link
-                        key={href}
-                        href={href}
-                        className={cn(
-                            "flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium transition-all duration-200",
-                            isActive(href)
-                                ? "bg-brand-50 text-brand-600 shadow-sm"
-                                : "text-text-muted hover:bg-bg-main hover:text-text-dark"
-                        )}
-                    >
-                        <Icon
-                            className={cn(
-                                "w-4.5 h-4.5 shrink-0",
-                                isActive(href) ? "text-brand-600" : "text-text-muted"
-                            )}
-                        />
-                        {label}
-                    </Link>
-                ))}
-            </div>
-        </aside>
+
+            {/* Main Content */}
+            <SidebarContent className="px-3 py-4">
+                <SidebarMenu className="gap-1.5">
+                    {navItems.map((item) => (
+                        <SidebarMenuItem key={item.label}>
+                            <SidebarMenuButton
+                                asChild
+                                isActive={isActive(item.href)}
+                                tooltip={item.label}
+                                className={cn(
+                                    "h-11 px-3 rounded-xl transition-all duration-200 group relative",
+                                    isActive(item.href)
+                                        ? "bg-brand-50 text-brand-600 font-bold"
+                                        : "text-text-muted hover:bg-bg-main hover:text-text-dark"
+                                )}
+                            >
+                                <Link href={item.href} className="flex items-center gap-3">
+                                    {/* Active indicator bar */}
+                                    {isActive(item.href) && (
+                                        <div className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-brand-600 rounded-r-full" />
+                                    )}
+                                    <item.icon className={cn(
+                                        "w-5 h-5 shrink-0 transition-colors",
+                                        isActive(item.href) ? "text-brand-600" : "text-text-muted group-hover:text-text-dark"
+                                    )} />
+                                    <span className="text-[14px] group-data-[collapsible=icon]:hidden">
+                                        {item.label}
+                                    </span>
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    ))}
+                </SidebarMenu>
+            </SidebarContent>
+
+            {/* Footer / User Profile */}
+            <SidebarFooter className="p-3 border-t border-border-light">
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <SidebarMenuButton
+                                    size="lg"
+                                    className="w-full h-14 rounded-xl hover:bg-bg-main transition-all px-2"
+                                >
+                                    <Avatar className="w-9 h-9 rounded-lg border border-border-base">
+                                        {user?.image ? (
+                                            <AvatarImage src={user.image} alt={user.name || ""} />
+                                        ) : null}
+                                        <AvatarFallback className="bg-brand-50 text-brand-600 font-bold text-xs rounded-lg">
+                                            {initials}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex flex-col items-start ml-2 leading-tight group-data-[collapsible=icon]:hidden">
+                                        <span className="text-sm font-bold text-text-dark truncate">
+                                            {user?.name || "Admin User"}
+                                        </span>
+                                        <span className="text-[11px] text-text-muted truncate">
+                                            {user?.email || "admin@cafirm.com"}
+                                        </span>
+                                    </div>
+                                    <ChevronUp className="w-4 h-4 ml-auto text-text-muted group-data-[collapsible=icon]:hidden" />
+                                </SidebarMenuButton>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                                side="top"
+                                align="start"
+                                className="w-56 mb-2 p-2 rounded-2xl shadow-soft border-border-base"
+                            >
+                                <DropdownMenuItem className="rounded-xl p-2 gap-3 cursor-pointer">
+                                    <User2 className="w-4 h-4 text-text-muted" />
+                                    <span className="text-sm font-medium text-text-dark">View Profile</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    className="rounded-xl p-2 gap-3 cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                                    onClick={() => signOut({ callbackUrl: "/login" })}
+                                >
+                                    <LogOut className="w-4 h-4" />
+                                    <span className="text-sm font-medium">Log out</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarFooter>
+            <SidebarRail />
+        </ShadcnSidebar>
     );
 }
