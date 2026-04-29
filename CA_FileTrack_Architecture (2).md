@@ -518,12 +518,12 @@ Each task is one focused, completable unit. Check off as done.
 - [x] **T-27** Build `/employees` page — list + "currently holds" files column
 
 ### Phase 4 — Storage Locations
-- [ ] **T-28** Write `src/types/storage.ts` + Zod schema
-- [ ] **T-29** Write `src/services/storage.service.ts` — getTree, addNode, rename, delete
-- [ ] **T-30** Build `/api/storage-locations` + `[locationId]` routes
-- [ ] **T-31** Build `StorageTree.tsx` — tree view with inline add/rename/delete
-- [ ] **T-32** Build `LocationPicker.tsx` — drill-down select for use in document forms
-- [ ] **T-33** Build `/settings/storage` page
+- [x] **T-28** Write `src/types/storage.ts` + Zod schema
+- [x] **T-29** Write `src/services/storage.service.ts` — getTree, addNode, rename, delete
+- [x] **T-30** Build `/api/storage-locations` + `[locationId]` routes
+- [x] **T-31** Build `StorageTree.tsx` — tree view with inline add/rename/delete
+- [x] **T-32** Build `LocationPicker.tsx` — drill-down select for use in document forms
+- [x] **T-33** Build `/locations` page
 
 ### Phase 5 — Documents
 - [ ] **T-34** Write `src/types/document.ts` + Zod schema

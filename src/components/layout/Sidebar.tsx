@@ -23,6 +23,8 @@ import {
     SidebarContent,
     SidebarFooter,
     SidebarHeader,
+    SidebarGroup,
+    SidebarGroupContent,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
@@ -93,38 +95,45 @@ export function Sidebar({ user }: AppSidebarProps) {
 
 
             {/* Main Content */}
-            <SidebarContent className="px-3 py-4">
-                <SidebarMenu className="gap-1.5">
-                    {navItems.map((item) => (
-                        <SidebarMenuItem key={item.label}>
-                            <SidebarMenuButton
-                                asChild
-                                isActive={isActive(item.href)}
-                                tooltip={item.label}
-                                className={cn(
-                                    "h-11 px-3 rounded-xl transition-all duration-200 group relative",
-                                    isActive(item.href)
-                                        ? "bg-brand-50 text-brand-600 font-bold"
-                                        : "text-text-muted hover:bg-bg-main hover:text-text-dark"
-                                )}
-                            >
-                                <Link href={item.href} className="flex items-center gap-3">
-                                    {/* Active indicator bar */}
-                                    {isActive(item.href) && (
-                                        <div className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-brand-600 rounded-r-full" />
-                                    )}
-                                    <item.icon className={cn(
-                                        "w-5 h-5 shrink-0 transition-colors",
-                                        isActive(item.href) ? "text-brand-600" : "text-text-muted group-hover:text-text-dark"
-                                    )} />
-                                    <span className="text-[14px] group-data-[collapsible=icon]:hidden">
-                                        {item.label}
-                                    </span>
-                                </Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                    ))}
-                </SidebarMenu>
+            <SidebarContent>
+                <SidebarGroup>
+                    <SidebarGroupContent>
+                        <SidebarMenu className="gap-2 px-2">
+                            {navItems.map((item) => {
+                                const active = isActive(item.href);
+                                return (
+                                    <SidebarMenuItem key={item.label}>
+                                        <SidebarMenuButton
+                                            asChild
+                                            isActive={active}
+                                            tooltip={item.label}
+                                            className={cn(
+                                                "h-10 px-3 transition-all duration-200 group relative",
+                                                active
+                                                    ? "bg-brand-50 text-brand-600 font-semibold hover:bg-brand-50 hover:text-brand-600"
+                                                    : "text-text-muted hover:bg-bg-main hover:text-text-dark"
+                                            )}
+                                        >
+                                            <Link href={item.href} className="flex items-center gap-3 w-full">
+                                                {/* Active indicator bar */}
+                                                {active && (
+                                                    <div className="absolute left-0 top-[15%] bottom-[15%] w-1 bg-brand-600 rounded-r-md" />
+                                                )}
+                                                <item.icon className={cn(
+                                                    "w-[18px] h-[18px] shrink-0 transition-colors",
+                                                    active ? "text-brand-600" : "text-slate-400 group-hover:text-text-dark"
+                                                )} />
+                                                <span className="text-[14px] group-data-[collapsible=icon]:hidden">
+                                                    {item.label}
+                                                </span>
+                                            </Link>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                );
+                            })}
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
             </SidebarContent>
 
             {/* Footer / User Profile */}
