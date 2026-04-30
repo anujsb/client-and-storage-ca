@@ -31,10 +31,8 @@ export async function POST(request: NextRequest) {
         const payment = await paymentService.create(tenantId, data);
 
         await notificationService.create(tenantId, {
-            title: "New Payment Recorded",
             message: `Payment of ${data.totalAmount / 100} recorded for ${data.filingType}`,
-            type: "payment_due",
-            link: "/payments"
+            type: "payment_due"
         });
 
         return NextResponse.json(payment, { status: 201 });

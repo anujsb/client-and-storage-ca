@@ -70,10 +70,8 @@ export async function PATCH(
 
                 if (updateData.status) {
                     await notificationService.create(user.tenantId, {
-                        title: "Task Status Updated",
                         message: `Task status updated to ${updateData.status.toUpperCase()}`,
-                        type: "work_status_changed",
-                        link: `/works/${workId}`
+                        type: "work_status_changed"
                     });
                 }
                 break;

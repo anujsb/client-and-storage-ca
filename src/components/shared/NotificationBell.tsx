@@ -10,14 +10,12 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { formatDistanceToNow } from "date-fns";
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 interface Notification {
     id: string;
     message: string;
-    type: "info" | "success" | "warning" | "error" | "file_checked_in" | "file_checked_out" | "file_overdue" | "payment_due";
-    link?: string;
+    type: "file_checked_out" | "file_checked_in" | "file_overdue" | "work_status_changed" | "payment_due";
     isRead: boolean;
     createdAt: string;
 }
@@ -143,18 +141,6 @@ export function NotificationBell() {
                                                 <p className="text-[10px] font-medium text-slate-400">
                                                     {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}
                                                 </p>
-                                                {n.link && (
-                                                    <Link 
-                                                        href={n.link}
-                                                        onClick={() => {
-                                                            markAsRead(n.id);
-                                                            setIsOpen(false);
-                                                        }}
-                                                        className="text-[10px] font-bold text-brand-600 hover:underline"
-                                                    >
-                                                        View Details
-                                                    </Link>
-                                                )}
                                             </div>
                                         </div>
                                     </div>

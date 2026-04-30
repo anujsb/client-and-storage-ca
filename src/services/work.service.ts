@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { works, clients, employees } from "@/lib/db/schema";
 import { eq, and, desc, asc } from "drizzle-orm";
 import { CreateWorkInput, UpdateWorkInput, AddSubTaskInput, UpdateSubTaskInput, AddCommentInput, LogTimeInput } from "@/lib/validations/work";
-import { v4 as uuidv4 } from "uuid";
+// No import needed for crypto.randomUUID in Next.js/Node 16+
 
 export class WorkService {
     async list(tenantId: string) {
@@ -85,7 +85,7 @@ export class WorkService {
             tags: input.tags || [],
             subTasks: [],
             activityLog: [{
-                id: uuidv4(),
+                id: crypto.randomUUID(),
                 type: "system",
                 message: "Task created",
                 timestamp: new Date().toISOString(),
@@ -115,7 +115,7 @@ export class WorkService {
         
         if (input.status && input.status !== current.status) {
             newLog.unshift({
-                id: uuidv4(),
+                id: crypto.randomUUID(),
                 type: "status_change",
                 message: `Status changed from ${current.status} to ${input.status}`,
                 timestamp: new Date().toISOString(),
@@ -141,7 +141,7 @@ export class WorkService {
 
         const subTasks = current.subTasks || [];
         subTasks.push({
-            id: uuidv4(),
+            id: crypto.randomUUID(),
             title: input.title,
             completed: false,
             assigneeId: input.assigneeId,
@@ -172,7 +172,7 @@ export class WorkService {
 
         const activityLog = current.activityLog || [];
         activityLog.unshift({
-            id: uuidv4(),
+            id: crypto.randomUUID(),
             type: "comment",
             message: input.message,
             timestamp: new Date().toISOString(),

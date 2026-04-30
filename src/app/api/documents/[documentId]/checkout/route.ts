@@ -21,10 +21,8 @@ export async function POST(
         const checkoutRecord = await checkoutService.checkOut(tenantId, documentId, data);
         
         await notificationService.create(tenantId, {
-            title: "Document Checked Out",
-            message: `A document was checked out for: ${data.purpose || 'No purpose specified'}`,
-            type: "file_checked_out",
-            link: `/documents/${documentId}`
+            message: `Document checked out for: ${data.purpose || 'No purpose specified'}`,
+            type: "file_checked_out"
         });
         
         return NextResponse.json(checkoutRecord, { status: 201 });

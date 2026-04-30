@@ -4,17 +4,13 @@ import { eq, and, desc, inArray } from "drizzle-orm";
 
 export class NotificationService {
     async create(tenantId: string, payload: {
-        title: string;
         message: string;
         type: "file_checked_out" | "file_checked_in" | "file_overdue" | "work_status_changed" | "payment_due";
-        link?: string;
     }) {
         const [notification] = await db.insert(notifications).values({
             tenantId,
-            title: payload.title,
             message: payload.message,
             type: payload.type,
-            link: payload.link,
             isRead: false,
         }).returning();
 

@@ -21,10 +21,8 @@ export async function PATCH(
         await checkoutService.checkIn(tenantId, documentId, data);
         
         await notificationService.create(tenantId, {
-            title: "Document Returned",
             message: `A document has been returned to the office.`,
-            type: "file_checked_in",
-            link: `/documents/${documentId}`
+            type: "file_checked_in"
         });
 
         return NextResponse.json({ success: true });
