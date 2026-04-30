@@ -41,7 +41,7 @@ import { cn } from "@/lib/utils";
 import { NotificationBell } from "@/components/shared/NotificationBell";
 
 const navItems = [
-    { label: "Dashboard", href: "/", icon: LayoutDashboard },
+    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { label: "Client Registry", href: "/clients", icon: Users },
     { label: "Document Registry", href: "/documents", icon: FolderOpen },
     { label: "Storage Locations", href: "/locations", icon: Database },
@@ -62,7 +62,7 @@ export function Sidebar({ user }: AppSidebarProps) {
     const pathname = usePathname();
 
     const isActive = (href: string) => {
-        if (href === "/") return pathname === "/";
+        if (href === "/dashboard") return pathname === "/dashboard";
         return pathname.startsWith(href);
     };
 

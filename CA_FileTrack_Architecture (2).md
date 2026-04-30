@@ -552,12 +552,12 @@ Each task is one focused, completable unit. Check off as done.
 - [x] **T-53** Build `/works` page — active works with status filter
 
 ### Phase 8 — Payments
-- [ ] **T-54** Write `src/types/payment.ts` + Zod schema
-- [ ] **T-55** Write `src/services/payment.service.ts` — auto-compute payment status
-- [ ] **T-56** Build `/api/payments` + `[paymentId]` routes
-- [ ] **T-57** Build `PaymentStatusBadge.tsx` — unpaid/partial/paid
-- [ ] **T-58** Build `PaymentTable.tsx` + `PaymentForm.tsx`
-- [ ] **T-59** Build `/payments` page — all payments with status filter
+- [x] **T-54** Write `src/types/payment.ts` + Zod schema
+- [x] **T-55** Write `src/services/payment.service.ts` — auto-compute payment status
+- [x] **T-56** Build `/api/payments` + `[paymentId]` routes
+- [x] **T-57** Build `PaymentStatusBadge.tsx` — unpaid/partial/paid
+- [x] **T-58** Build `PaymentTable.tsx` + `PaymentForm.tsx`
+- [x] **T-59** Build `/payments` page — all payments with status filter
 
 ### Phase 9 — Dashboard
 - [ ] **T-60** Build `StatCard.tsx` — reusable metric tile
