@@ -24,6 +24,8 @@ export const UpdateWorkSchema = z.object({
     description: z.string().max(1000).optional(),
     dueDate: z.string().datetime().nullable().optional().or(z.date().nullable().optional()),
     tags: z.array(z.string()).optional(),
+    filingType: z.enum(["ITR", "GST", "TDS", "Audit", "custom"]).optional(),
+    customFilingType: z.string().max(50).optional().nullable(),
 });
 
 export type UpdateWorkInput = z.infer<typeof UpdateWorkSchema>;
