@@ -15,7 +15,7 @@ export function RecentActivityFeed({ activities }: { activities: any[] }) {
     }
 
     return (
-        <div className="space-y-6 relative before:absolute before:inset-0 before:ml-[19px] before:-translate-x-px before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent pt-2">
+        <div className="space-y-6 relative before:absolute before:inset-0 before:ml-[19px] before:-translate-x-px before:h-full before:w-0.5 before:bg-linear-to-b before:from-transparent before:via-slate-200 before:to-transparent pt-2">
             {activities.map((activity, index) => {
                 let icon;
                 let bgColor = "";

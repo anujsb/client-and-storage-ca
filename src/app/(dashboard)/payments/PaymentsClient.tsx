@@ -71,7 +71,7 @@ export function PaymentsClient() {
                     <div className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Total Outstanding</div>
                     <div className="text-2xl font-black text-amber-600 tracking-tight">{formatCurrency(metrics.outstanding / 100)}</div>
                 </div>
-                <div className="bg-white rounded-2xl p-5 border border-border-base shadow-sm bg-red-50/50">
+                <div className="rounded-2xl p-5 border border-border-base shadow-sm bg-red-50/50">
                     <div className="text-xs font-bold text-red-500 uppercase tracking-wider mb-2">Overdue Amount</div>
                     <div className="text-2xl font-black text-red-600 tracking-tight">{formatCurrency(metrics.overdue / 100)}</div>
                 </div>
