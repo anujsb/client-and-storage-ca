@@ -57,6 +57,16 @@ export const tenants = pgTable("tenants", {
     id: uuid("id").primaryKey().defaultRandom(),
     name: text("name").notNull(),
     slug: text("slug").notNull().unique(), // used in URLs / lookup
+    gstin: text("gstin"),
+    email: text("email"),
+    phone: text("phone"),
+    address: text("address"),
+    preferences: jsonb("preferences").$type<{
+        emailAlerts?: boolean;
+        overdueAlerts?: boolean;
+        paymentAlerts?: boolean;
+        defaultTaskView?: string;
+    }>(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

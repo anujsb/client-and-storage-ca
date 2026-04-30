@@ -9,9 +9,11 @@ import { Eye, EyeOff, Loader2, Files, ShieldCheck, CheckCircle2 } from "lucide-r
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { Suspense } from "react";
+
 type Tab = "login" | "signup";
 
-export default function LoginPage() {
+function LoginContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [tab, setTab] = useState<Tab>("login");
@@ -281,5 +283,17 @@ export default function LoginPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-brand-500" />
+            </div>
+        }>
+            <LoginContent />
+        </Suspense>
     );
 }

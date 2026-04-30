@@ -16,6 +16,7 @@ import {
     Building2,
     ChevronUp,
     User2,
+    Settings,
 } from "lucide-react";
 
 import {
@@ -48,6 +49,7 @@ const navItems = [
     { label: "Work/Task Board", href: "/works", icon: ListTodo },
     { label: "Payments & Billing", href: "/payments", icon: CreditCard },
     { label: "Employee Directory", href: "/employees", icon: UserCheck },
+    { label: "Settings", href: "/settings", icon: Settings },
 ];
 
 interface AppSidebarProps {
