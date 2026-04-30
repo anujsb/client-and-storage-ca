@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getTenantId, getUser } from "@/lib/auth/helpers";
+import { getTenantId, getSession } from "@/lib/auth/helpers";
 import { WorkService } from "@/services/work.service";
 import { UpdateWorkSchema, AddSubTaskSchema, UpdateSubTaskSchema, AddCommentSchema, LogTimeSchema } from "@/lib/validations/work";
 import { z } from "zod";
@@ -32,7 +32,8 @@ export async function PATCH(
     { params }: { params: Promise<{ workId: string }> }
 ) {
     try {
-        const user = await getUser();
+        const session = await getSession();
+        const user = session?.user as any;
         if (!user || !user.tenantId) throw new Error("Unauthorized");
         const { workId } = await params;
         

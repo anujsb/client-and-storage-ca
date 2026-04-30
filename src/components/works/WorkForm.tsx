@@ -118,7 +118,7 @@ export function WorkForm({ open, onOpenChange, onSuccess }: WorkFormProps) {
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label>Client <span className="text-red-500">*</span></Label>
-                            <Select required value={formData.clientId} onValueChange={v => setFormData({...formData, clientId: v})}>
+                            <Select required value={formData.clientId || undefined} onValueChange={v => setFormData({...formData, clientId: v})}>
                                 <SelectTrigger className="h-10 rounded-xl">
                                     <SelectValue placeholder="Select Client" />
                                 </SelectTrigger>
@@ -148,7 +148,7 @@ export function WorkForm({ open, onOpenChange, onSuccess }: WorkFormProps) {
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label>Filing Type <span className="text-red-500">*</span></Label>
-                            <Select required value={formData.filingType} onValueChange={v => setFormData({...formData, filingType: v})}>
+                            <Select required value={formData.filingType || undefined} onValueChange={v => setFormData({...formData, filingType: v})}>
                                 <SelectTrigger className="h-10 rounded-xl">
                                     <SelectValue placeholder="Select Type" />
                                 </SelectTrigger>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Share, MoreHorizontal, CheckCircle2, Circle, Plus, Paperclip, Clock, Link as LinkIcon, Save, Send } from "lucide-react";
+import { ArrowLeft, Share, MoreHorizontal, CheckCircle2, Circle, Plus, Paperclip, Clock, Link as LinkIcon, Save, Send, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { WorkStatusBadge } from "@/components/works/WorkStatusBadge";
@@ -15,7 +15,7 @@ export function WorkDetailClient({ workId }: { workId: string }) {
     const router = useRouter();
     const [work, setWork] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
-    
+
     const [newSubtask, setNewSubtask] = useState("");
     const [newComment, setNewComment] = useState("");
     const [logTimeInput, setLogTimeInput] = useState("");
@@ -37,7 +37,7 @@ export function WorkDetailClient({ workId }: { workId: string }) {
         try {
             const res = await fetch("/api/employees");
             if (res.ok) setEmployees(await res.json());
-        } catch (e) {}
+        } catch (e) { }
     };
 
     useEffect(() => {
@@ -57,7 +57,7 @@ export function WorkDetailClient({ workId }: { workId: string }) {
     const addSubTask = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newSubtask.trim()) return;
-        
+
         await fetch(`/api/works/${workId}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
@@ -108,7 +108,7 @@ export function WorkDetailClient({ workId }: { workId: string }) {
     const subTasks = work.subTasks || [];
     const completedSubTasks = subTasks.filter((t: any) => t.completed).length;
     const progressPercent = subTasks.length > 0 ? (completedSubTasks / subTasks.length) * 100 : 0;
-    
+
     const timeTrack = work.timeTracking || { estimatedMinutes: 0, loggedMinutes: 0 };
     const timeProgress = timeTrack.estimatedMinutes > 0 ? Math.min((timeTrack.loggedMinutes / timeTrack.estimatedMinutes) * 100, 100) : 0;
 
@@ -157,7 +157,7 @@ export function WorkDetailClient({ workId }: { workId: string }) {
                             <SelectItem value="completed">Completed</SelectItem>
                         </SelectContent>
                     </Select>
-                    
+
                     <Button variant="outline" className="h-10 rounded-xl border-border-base shadow-sm text-text-dark font-semibold">
                         <Share className="w-4 h-4 mr-2 text-text-muted" />
                         Share
@@ -171,7 +171,7 @@ export function WorkDetailClient({ workId }: { workId: string }) {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main Content */}
                 <div className="lg:col-span-2 space-y-6">
-                    
+
                     {/* Description */}
                     <div className="bg-white rounded-[24px] border border-border-base p-6 shadow-sm">
                         <h3 className="flex items-center gap-2 text-sm font-bold text-text-dark uppercase tracking-wider mb-4">
@@ -217,10 +217,10 @@ export function WorkDetailClient({ workId }: { workId: string }) {
                         </div>
 
                         <form onSubmit={addSubTask} className="flex items-center gap-2">
-                            <Input 
+                            <Input
                                 value={newSubtask}
                                 onChange={e => setNewSubtask(e.target.value)}
-                                placeholder="Add a new sub-task..." 
+                                placeholder="Add a new sub-task..."
                                 className="h-10 rounded-xl bg-slate-50 border-transparent focus-visible:ring-1 focus-visible:ring-brand-500"
                             />
                             <Button type="submit" variant="secondary" className="h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-text-dark px-4">
@@ -243,10 +243,10 @@ export function WorkDetailClient({ workId }: { workId: string }) {
                                 <AvatarFallback className="bg-brand-100 text-brand-700 font-bold">ME</AvatarFallback>
                             </Avatar>
                             <div className="flex-1 space-y-3">
-                                <Textarea 
+                                <Textarea
                                     value={newComment}
                                     onChange={e => setNewComment(e.target.value)}
-                                    placeholder="Add a comment or update..." 
+                                    placeholder="Add a comment or update..."
                                     className="min-h-[80px] rounded-xl resize-none bg-slate-50 border-slate-200 focus-visible:ring-brand-500 focus-visible:border-brand-500"
                                 />
                                 <div className="flex justify-between items-center">
@@ -269,7 +269,7 @@ export function WorkDetailClient({ workId }: { workId: string }) {
                                     <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white p-4 rounded-2xl border border-border-light shadow-sm">
                                         <div className="flex items-center justify-between mb-1">
                                             <span className="font-bold text-text-dark text-[13px]">{log.userName}</span>
-                                            <time className="text-[11px] text-text-muted font-medium">{new Date(log.timestamp).toLocaleDateString()} {new Date(log.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</time>
+                                            <time className="text-[11px] text-text-muted font-medium">{new Date(log.timestamp).toLocaleDateString()} {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</time>
                                         </div>
                                         <div className="text-[13px] text-text-muted">{log.message}</div>
                                     </div>
@@ -284,7 +284,7 @@ export function WorkDetailClient({ workId }: { workId: string }) {
                     {/* Task Details */}
                     <div className="bg-white rounded-[24px] border border-border-base p-6 shadow-sm">
                         <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-5">Task Details</h3>
-                        
+
                         <div className="space-y-5">
                             <div>
                                 <div className="text-[11px] font-bold text-text-muted uppercase mb-2">Assignee</div>
@@ -335,7 +335,7 @@ export function WorkDetailClient({ workId }: { workId: string }) {
                     {/* Related Data */}
                     <div className="bg-white rounded-[24px] border border-border-base p-6 shadow-sm">
                         <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-4">Related Data</h3>
-                        
+
                         <div className="space-y-4">
                             <div>
                                 <div className="text-[11px] font-bold text-text-muted uppercase mb-2">Client Profile</div>
@@ -370,16 +370,16 @@ export function WorkDetailClient({ workId }: { workId: string }) {
                                 <span>Logged</span>
                                 <span>{formatMinutes(timeTrack.loggedMinutes || 0)}</span>
                             </div>
-                            
+
                             <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                                 <div className={`h-full transition-all duration-500 ${timeTrack.loggedMinutes > timeTrack.estimatedMinutes ? 'bg-red-500' : 'bg-brand-500'}`} style={{ width: `${timeProgress}%` }} />
                             </div>
                         </div>
 
                         <div className="flex gap-2">
-                            <Input 
-                                type="number" 
-                                placeholder="Minutes..." 
+                            <Input
+                                type="number"
+                                placeholder="Minutes..."
                                 value={logTimeInput}
                                 onChange={(e) => setLogTimeInput(e.target.value)}
                                 className="h-9 rounded-lg"
