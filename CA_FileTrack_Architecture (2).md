@@ -567,10 +567,10 @@ Each task is one focused, completable unit. Check off as done.
 - [ ] **T-64** Build `/` dashboard page — assemble all components
 
 ### Phase 10 — Notifications
-- [ ] **T-65** Write `src/services/notification.service.ts` — create, markRead, getUnread
-- [ ] **T-66** Build `/api/notifications` routes
-- [ ] **T-67** Wire triggers: checkout, checkin, work status change, payment due
-- [ ] **T-68** Build `NotificationBell.tsx` — badge count + dropdown list
+- [x] **T-65** Write `src/services/notification.service.ts` — create, markRead, getUnread
+- [x] **T-66** Build `/api/notifications` routes
+- [x] **T-67** Wire triggers: checkout, checkin, work status change, payment due
+- [x] **T-68** Build `NotificationBell.tsx` — badge count + dropdown list
 
 ### Phase 11 — Settings
 - [ ] **T-69** Build `/settings` page — firm name, plan info

@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTenantId } from "@/lib/auth/helpers";
 import { PaymentService } from "@/services/payment.service";
+import { NotificationService } from "@/services/notification.service";
 import { CreatePaymentSchema } from "@/lib/validations/payment";
 import { z } from "zod";
 
 const paymentService = new PaymentService();
+const notificationService = new NotificationService();
 
 export async function GET() {
     try {
@@ -27,6 +29,14 @@ export async function POST(request: NextRequest) {
         const data = CreatePaymentSchema.parse(body);
         
         const payment = await paymentService.create(tenantId, data);
+
+        await notificationService.create(tenantId, {
+            title: "New Payment Recorded",
+            message: `Payment of ${data.totalAmount / 100} recorded for ${data.filingType}`,
+            type: "payment_due",
+            link: "/payments"
+        });
+
         return NextResponse.json(payment, { status: 201 });
     } catch (error) {
         if (error instanceof Error && error.message === "UNAUTHORIZED") {

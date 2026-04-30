@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTenantId } from "@/lib/auth/helpers";
 import { CheckoutService } from "@/services/checkout.service";
+import { NotificationService } from "@/services/notification.service";
 import { CheckoutDocumentSchema } from "@/lib/validations/document";
 import { z } from "zod";
 
 const checkoutService = new CheckoutService();
+const notificationService = new NotificationService();
 
 export async function POST(
     request: NextRequest,
@@ -17,6 +19,13 @@ export async function POST(
         
         const data = CheckoutDocumentSchema.parse(body);
         const checkoutRecord = await checkoutService.checkOut(tenantId, documentId, data);
+        
+        await notificationService.create(tenantId, {
+            title: "Document Checked Out",
+            message: `A document was checked out for: ${data.purpose || 'No purpose specified'}`,
+            type: "file_checked_out",
+            link: `/documents/${documentId}`
+        });
         
         return NextResponse.json(checkoutRecord, { status: 201 });
     } catch (error) {

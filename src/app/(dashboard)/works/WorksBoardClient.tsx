@@ -28,10 +28,10 @@ export function WorksBoardClient() {
     const [works, setWorks] = useState<WorkItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isFormOpen, setIsFormOpen] = useState(false);
-    
+
     // Search & filters (client side for now to be fast)
     const [searchQuery, setSearchQuery] = useState("");
-    
+
     // Drag state
     const [draggingId, setDraggingId] = useState<string | null>(null);
     const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
@@ -127,15 +127,15 @@ export function WorksBoardClient() {
                 <div className="flex items-center gap-3 w-full sm:max-w-2xl bg-white rounded-2xl p-1.5 border border-border-base shadow-sm">
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-                        <Input 
+                        <Input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Search tasks, clients..." 
+                            placeholder="Search tasks, clients..."
                             className="pl-9 h-10 border-0 shadow-none focus-visible:ring-0 bg-transparent"
                         />
                     </div>
                 </div>
-                
+
                 <div className="flex items-center gap-3">
                     <Button onClick={() => setIsFormOpen(true)} className="h-11 px-5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-medium shadow-soft">
                         <Plus className="w-4 h-4 mr-2" />
@@ -151,9 +151,9 @@ export function WorksBoardClient() {
             ) : (
                 <div className="flex gap-6 overflow-x-auto pb-4 min-h-[600px] items-start">
                     {getColumns().map(column => (
-                        <div 
-                            key={column.id} 
-                            className={`flex-shrink-0 w-80 flex flex-col gap-3 rounded-[20px] transition-colors p-3 ${dragOverColumn === column.id ? 'bg-brand-50 border-2 border-dashed border-brand-300' : 'bg-transparent border-2 border-transparent'}`}
+                        <div
+                            key={column.id}
+                            className={`shrink-0 w-80 flex flex-col gap-3 rounded-[20px] transition-colors p-3 ${dragOverColumn === column.id ? 'bg-brand-50 border-2 border-dashed border-brand-300' : 'bg-transparent border-2 border-transparent'}`}
                             onDragOver={(e) => handleDragOver(e, column.id)}
                             onDragLeave={() => setDragOverColumn(null)}
                             onDrop={(e) => handleDrop(e, column.id)}
@@ -168,7 +168,7 @@ export function WorksBoardClient() {
                             </div>
 
                             {column.items.map(work => (
-                                <div 
+                                <div
                                     key={work.id}
                                     id={`work-${work.id}`}
                                     draggable
@@ -187,7 +187,7 @@ export function WorksBoardClient() {
                                             </span>
                                         </div>
                                     </div>
-                                    
+
                                     <h4 className="font-bold text-brand-900 text-sm mb-3 leading-snug group-hover:text-brand-600 transition-colors">
                                         {work.title}
                                     </h4>
@@ -213,7 +213,7 @@ export function WorksBoardClient() {
                                                 </div>
                                             )}
                                         </div>
-                                        
+
                                         <div className="flex items-center gap-3 text-text-muted text-[11px] font-medium">
                                             {work.subTasks && work.subTasks.length > 0 && (
                                                 <div className="flex items-center gap-1">

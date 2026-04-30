@@ -106,7 +106,7 @@ export function DocumentsClient() {
                             <DocumentForm onSuccess={fetchDocuments} />
                         </div>
                     </div>
-                    
+
                     {isLoading ? (
                         <div className="p-8 text-center text-text-muted">Loading documents...</div>
                     ) : (
@@ -123,8 +123,8 @@ export function DocumentsClient() {
                         <h3 className="font-bold text-brand-900 tracking-tight">Tracking & Checkouts</h3>
                     </div>
                     <p className="text-xs text-text-muted mb-6">Recent document movements</p>
-                    
-                    <div className="space-y-0 relative before:absolute before:inset-0 before:ml-2.5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border-base before:to-transparent">
+
+                    <div className="space-y-0 relative before:absolute before:inset-0 before:ml-2.5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-linear-to-b before:from-transparent before:via-border-base before:to-transparent">
                         <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active mb-6">
                             <div className="flex items-center justify-center w-5 h-5 rounded-full border-2 border-white bg-amber-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 absolute left-0" />
                             <div className="w-full pl-8">
@@ -142,7 +142,7 @@ export function DocumentsClient() {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active mb-6">
                             <div className="flex items-center justify-center w-5 h-5 rounded-full border-2 border-white bg-green-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 absolute left-0" />
                             <div className="w-full pl-8">
@@ -164,7 +164,7 @@ export function DocumentsClient() {
                         <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active mb-6">
                             <div className="flex items-center justify-center w-5 h-5 rounded-full border-2 border-white bg-red-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 absolute left-0" />
                             <div className="w-full pl-8">
-                                <div className="bg-white p-3 rounded-xl border border-border-base shadow-sm bg-red-50/30">
+                                <div className=" p-3 rounded-xl border border-border-base shadow-sm bg-red-50/30">
                                     <div className="flex justify-between items-center mb-1 text-[10px] font-bold text-text-muted uppercase">
                                         <span className="text-red-600">Marked Missing</span>
                                         <span>Nov 05, 09:00 AM</span>

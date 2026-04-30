@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTenantId, getSession } from "@/lib/auth/helpers";
 import { WorkService } from "@/services/work.service";
+import { NotificationService } from "@/services/notification.service";
 import { UpdateWorkSchema, AddSubTaskSchema, UpdateSubTaskSchema, AddCommentSchema, LogTimeSchema } from "@/lib/validations/work";
 import { z } from "zod";
 
 const workService = new WorkService();
+const notificationService = new NotificationService();
 
 export async function GET(
     request: NextRequest,
@@ -65,6 +67,15 @@ export async function PATCH(
             default:
                 const updateData = UpdateWorkSchema.parse(body.payload || body);
                 result = await workService.update(workId, user.tenantId, updateData, user.id, user.name);
+
+                if (updateData.status) {
+                    await notificationService.create(user.tenantId, {
+                        title: "Task Status Updated",
+                        message: `Task status updated to ${updateData.status.toUpperCase()}`,
+                        type: "work_status_changed",
+                        link: `/works/${workId}`
+                    });
+                }
                 break;
         }
         
