@@ -1,546 +1,285 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, Files, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
+import Link from "next/link";
 
 type Tab = "login" | "signup";
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [tab, setTab] = useState<Tab>("login");
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-
-  function handleLogin() {
-    setError("");
-    startTransition(async () => {
-      const res = await signIn("credentials", {
-        email: form.email,
-        password: form.password,
-        redirect: false,
-      });
-
-      if (res?.error) {
-        setError("Invalid email or password");
-        return;
-      }
-
-      router.push("/");
-      router.refresh();
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const [tab, setTab] = useState<Tab>("login");
+    const [isPending, startTransition] = useTransition();
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [form, setForm] = useState({
+        email: "",
+        password: "",
+        confirmPassword: "",
     });
-  }
 
-  function handleSignup() {
-    setError("");
-    setSuccess("");
+    useEffect(() => {
+        const tabParam = searchParams.get("tab");
+        if (tabParam === "signup") setTab("signup");
+    }, [searchParams]);
 
-    if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match");
-      return;
+    function handleLogin() {
+        setError("");
+        startTransition(async () => {
+            const res = await signIn("credentials", {
+                email: form.email,
+                password: form.password,
+                redirect: false,
+            });
+
+            if (res?.error) {
+                setError("Invalid email or password");
+                return;
+            }
+
+            router.push("/dashboard");
+            router.refresh();
+        });
     }
 
-    if (form.password.length < 8) {
-      setError("Password must be at least 8 characters");
-      return;
-    }
+    function handleSignup() {
+        setError("");
+        setSuccess("");
 
-    startTransition(async () => {
-      try {
-        const res = await fetch("/api/auth/signup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: form.email,
-            password: form.password,
-          }),
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          setError(data.error ?? "Failed to create account");
-          return;
+        if (form.password !== form.confirmPassword) {
+            setError("Passwords do not match");
+            return;
         }
 
-        const loginRes = await signIn("credentials", {
-          email: form.email,
-          password: form.password,
-          redirect: false,
-        });
-
-        if (loginRes?.error) {
-          setSuccess("Account created! Please sign in.");
-          setTab("login");
-          return;
+        if (form.password.length < 8) {
+            setError("Password must be at least 8 characters");
+            return;
         }
 
-        router.push("/");
-        router.refresh();
-      } catch {
-        setError("Something went wrong. Please try again.");
-      }
-    });
-  }
+        startTransition(async () => {
+            try {
+                const res = await fetch("/api/auth/signup", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        email: form.email,
+                        password: form.password,
+                    }),
+                });
 
-  return (
-    <div
-      className="relative flex justify-center items-center w-full min-h-screen overflow-hidden"
-      style={{ background: "#eef2ff" }}
-    >
-      {/* Background gradient mesh */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div
-          className="absolute"
-          style={{
-            top: "-15%",
-            left: "-10%",
-            width: "60%",
-            height: "65%",
-            background:
-              "radial-gradient(ellipse, #3b5bdb55 0%, #4263eb30 40%, transparent 70%)",
-            filter: "blur(56px)",
-          }}
-        />
-        <div
-          className="absolute"
-          style={{
-            bottom: "-15%",
-            right: "-8%",
-            width: "58%",
-            height: "60%",
-            background:
-              "radial-gradient(ellipse, #3451d135 0%, #2f44c830 40%, transparent 70%)",
-            filter: "blur(60px)",
-          }}
-        />
-        <div
-          className="absolute"
-          style={{
-            top: "30%",
-            left: "50%",
-            width: "40%",
-            height: "40%",
-            background:
-              "radial-gradient(ellipse, #748ffc20 0%, transparent 65%)",
-            filter: "blur(44px)",
-          }}
-        />
-        <div
-          className="absolute"
-          style={{
-            top: "5%",
-            right: "5%",
-            width: "30%",
-            height: "35%",
-            background:
-              "radial-gradient(ellipse, #a5b4fc25 0%, transparent 70%)",
-            filter: "blur(36px)",
-          }}
-        />
-      </div>
+                const data = await res.json();
 
-      {/* Dot grid */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle, #3b5bdb1a 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
-        }}
-      />
-
-      {/* Card */}
-      <div
-        className="z-10 relative mx-4 w-full overflow-hidden"
-        style={{
-          maxWidth: 520,
-          borderRadius: 28,
-          background: "rgba(255,255,255,0.65)",
-          border: "1px solid rgba(255,255,255,0.92)",
-          backdropFilter: "blur(36px)",
-          WebkitBackdropFilter: "blur(36px)",
-          boxShadow:
-            "0 1px 0 rgba(255,255,255,0.98) inset, 0 24px 64px rgba(59,91,219,0.14), 0 8px 24px rgba(59,91,219,0.08)",
-        }}
-      >
-        {/* Card header band */}
-        <div
-          style={{
-            padding: "32px 44px 28px",
-            borderBottom: "1px solid rgba(59,91,219,0.09)",
-            background:
-              "linear-gradient(160deg, rgba(224,231,255,0.65) 0%, rgba(255,255,255,0.2) 100%)",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            {/* Logo box */}
-            <div
-              style={{
-                width: 54,
-                height: 54,
-                borderRadius: 16,
-                flexShrink: 0,
-                background: "linear-gradient(145deg, #ffffff 0%, #e8eeff 100%)",
-                border: "1px solid rgba(59,91,219,0.2)",
-                boxShadow:
-                  "0 4px 16px rgba(59,91,219,0.16), 0 1px 0 rgba(255,255,255,1) inset",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                overflow: "hidden",
-              }}
-            >
-              {/* <Image
-                src="/next.svg"
-                alt="Anthrovoice"
-                width={16}
-                height={16}
-                style={{ objectFit: "contain" }}
-              /> */}
-            </div>
-
-            {/* Brand text */}
-            <div>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 18,
-                  fontWeight: 700,
-                  color: "#1a2b6b",
-                  letterSpacing: "-0.02em",
-                  lineHeight: 1.2,
-                }}
-              >
-                CA FileTrack
-              </p>
-              <p
-                style={{
-                  margin: "3px 0 0",
-                  fontSize: 13,
-                  color: "#6b80c9",
-                  fontWeight: 400,
-                }}
-              >
-                Multi-Tenant Firm Management
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Card body */}
-        <div style={{ padding: "32px 44px 36px" }}>
-          {/* Heading */}
-          <div style={{ marginBottom: 22 }}>
-            <h2
-              style={{
-                margin: 0,
-                fontSize: 22,
-                fontWeight: 700,
-                color: "#1a2b6b",
-                letterSpacing: "-0.025em",
-              }}
-            >
-              {tab === "login" ? "Welcome back" : "Create account"}
-            </h2>
-            <p style={{ margin: "5px 0 0", fontSize: 13.5, color: "#7b8dc4" }}>
-              {tab === "login"
-                ? "Sign in to your account to continue"
-                : "Get started with CA FileTrack today"}
-            </p>
-          </div>
-
-          {/* Tabs */}
-          <div
-            style={{
-              display: "flex",
-              background: "rgba(59,91,219,0.07)",
-              borderRadius: 12,
-              padding: 4,
-              marginBottom: 24,
-            }}
-          >
-            {(["login", "signup"] as Tab[]).map((t) => (
-              <button
-                key={t}
-                onClick={() => {
-                  setTab(t);
-                  setError("");
-                  setSuccess("");
-                }}
-                style={{
-                  flex: 1,
-                  padding: "7px 0",
-                  borderRadius: 9,
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: 13.5,
-                  fontWeight: 600,
-                  transition: "all 0.15s",
-                  background:
-                    tab === t ? "rgba(255,255,255,0.9)" : "transparent",
-                  color: tab === t ? "#1a2b6b" : "#8da0d4",
-                  boxShadow:
-                    tab === t ? "0 1px 4px rgba(59,91,219,0.12)" : "none",
-                }}
-              >
-                {t === "login" ? "Sign in" : "Sign up"}
-              </button>
-            ))}
-          </div>
-
-          {/* Form */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-            {/* Email */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <label
-                style={{
-                  fontSize: 11.5,
-                  fontWeight: 600,
-                  letterSpacing: "0.07em",
-                  textTransform: "uppercase",
-                  color: "#4a63b3",
-                }}
-              >
-                Email address
-              </label>
-              <Input
-                type="email"
-                placeholder="you@example.com"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                onKeyDown={(e) =>
-                  e.key === "Enter" &&
-                  (tab === "login" ? handleLogin() : handleSignup())
+                if (!res.ok) {
+                    setError(data.error ?? "Failed to create account");
+                    return;
                 }
-                required
-                disabled={isPending}
-                autoComplete="email"
-                className="rounded-xl h-12 transition-all"
-                style={{
-                  background: "rgba(255,255,255,0.8)",
-                  border: "1px solid rgba(59,91,219,0.2)",
-                  color: "#1a2b6b",
-                  fontSize: 14,
-                  boxShadow: "0 1px 4px rgba(59,91,219,0.06) inset",
-                }}
-              />
-            </div>
 
-            {/* Password */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <label
-                style={{
-                  fontSize: 11.5,
-                  fontWeight: 600,
-                  letterSpacing: "0.07em",
-                  textTransform: "uppercase",
-                  color: "#4a63b3",
-                }}
-              >
-                Password
-              </label>
-              <div style={{ position: "relative" }}>
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={form.password}
-                  onChange={(e) =>
-                    setForm({ ...form, password: e.target.value })
-                  }
-                  onKeyDown={(e) =>
-                    e.key === "Enter" && tab === "login" && handleLogin()
-                  }
-                  required
-                  disabled={isPending}
-                  autoComplete={
-                    tab === "login" ? "current-password" : "new-password"
-                  }
-                  className="rounded-xl h-12 transition-all"
-                  style={{
-                    background: "rgba(255,255,255,0.8)",
-                    border: "1px solid rgba(59,91,219,0.2)",
-                    color: "#1a2b6b",
-                    fontSize: 14,
-                    paddingRight: 44,
-                    boxShadow: "0 1px 4px rgba(59,91,219,0.06) inset",
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  disabled={isPending}
-                  style={{
-                    position: "absolute",
-                    right: 14,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    background: "none",
-                    border: "none",
-                    padding: 0,
-                    cursor: "pointer",
-                    color: "#8da0d4",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                  tabIndex={-1}
-                >
-                  {showPassword ? (
-                    <EyeOff style={{ width: 16, height: 16 }} />
-                  ) : (
-                    <Eye style={{ width: 16, height: 16 }} />
-                  )}
-                </button>
-              </div>
-            </div>
+                setSuccess("Account created successfully! Redirecting...");
+                
+                // Auto login after signup
+                const loginRes = await signIn("credentials", {
+                    email: form.email,
+                    password: form.password,
+                    redirect: false,
+                });
 
-            {/* Confirm Password (signup only) */}
-            {tab === "signup" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <label
-                  style={{
-                    fontSize: 11.5,
-                    fontWeight: 600,
-                    letterSpacing: "0.07em",
-                    textTransform: "uppercase",
-                    color: "#4a63b3",
-                  }}
-                >
-                  Confirm Password
-                </label>
-                <div style={{ position: "relative" }}>
-                  <Input
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    value={form.confirmPassword}
-                    onChange={(e) =>
-                      setForm({ ...form, confirmPassword: e.target.value })
-                    }
-                    onKeyDown={(e) => e.key === "Enter" && handleSignup()}
-                    required
-                    disabled={isPending}
-                    autoComplete="new-password"
-                    className="rounded-xl h-12 transition-all"
-                    style={{
-                      background: "rgba(255,255,255,0.8)",
-                      border: "1px solid rgba(59,91,219,0.2)",
-                      color: "#1a2b6b",
-                      fontSize: 14,
-                      paddingRight: 44,
-                      boxShadow: "0 1px 4px rgba(59,91,219,0.06) inset",
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    disabled={isPending}
-                    style={{
-                      position: "absolute",
-                      right: 14,
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      background: "none",
-                      border: "none",
-                      padding: 0,
-                      cursor: "pointer",
-                      color: "#8da0d4",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                    tabIndex={-1}
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff style={{ width: 16, height: 16 }} />
-                    ) : (
-                      <Eye style={{ width: 16, height: 16 }} />
-                    )}
-                  </button>
+                if (loginRes?.error) {
+                    setTab("login");
+                    return;
+                }
+
+                router.push("/dashboard");
+                router.refresh();
+            } catch {
+                setError("Something went wrong. Please try again.");
+            }
+        });
+    }
+
+    return (
+        <div className="min-h-screen bg-[#F8FAFC] flex flex-col md:flex-row font-sans overflow-hidden">
+            {/* Left Side: Branding & Info */}
+            <div className="hidden md:flex md:w-1/2 bg-slate-900 p-12 lg:p-20 flex-col justify-between relative overflow-hidden">
+                <Link href="/" className="flex items-center gap-2 relative z-10 group">
+                    <div className="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold shadow-lg shadow-brand-900/20 group-hover:scale-105 transition-transform">
+                        CF
+                    </div>
+                    <span className="text-xl font-black text-white tracking-tight">CA FileTrack</span>
+                </Link>
+
+                <div className="relative z-10 max-w-lg">
+                    <h2 className="text-4xl lg:text-5xl font-black text-white leading-[1.1] tracking-tight mb-8">
+                        The ultimate management <br />
+                        <span className="text-brand-500 text-3xl lg:text-4xl">portal for CA Professionals.</span>
+                    </h2>
+                    
+                    <div className="space-y-6">
+                        <div className="flex gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                            <div className="w-10 h-10 rounded-xl bg-brand-600/20 flex items-center justify-center text-brand-400 shrink-0">
+                                <Files className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <h4 className="text-sm font-bold text-white mb-1">Centralized Tracking</h4>
+                                <p className="text-xs text-slate-400 leading-relaxed">Manage documents, tasks, and client files in one unified workspace.</p>
+                            </div>
+                        </div>
+                        <div className="flex gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                            <div className="w-10 h-10 rounded-xl bg-emerald-600/20 flex items-center justify-center text-emerald-400 shrink-0">
+                                <ShieldCheck className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <h4 className="text-sm font-bold text-white mb-1">Secure & Compliant</h4>
+                                <p className="text-xs text-slate-400 leading-relaxed">Multi-tenant isolation ensuring your data never crosses paths with others.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
-            )}
 
-            {/* Error / Success messages */}
-            {error && (
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 13,
-                  color: "#d84040",
-                  fontWeight: 500,
-                }}
-              >
-                {error}
-              </p>
-            )}
-            {success && (
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 13,
-                  color: "#2a7d4f",
-                  fontWeight: 500,
-                }}
-              >
-                {success}
-              </p>
-            )}
+                <div className="relative z-10 pt-12 border-t border-white/10 flex items-center justify-between">
+                    <p className="text-xs text-slate-500">© 2026 CA FileTrack Systems</p>
+                    <div className="flex gap-4">
+                        <div className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
+                        <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500">System Online</span>
+                    </div>
+                </div>
 
-            {/* Submit */}
-            <div style={{ marginTop: 4 }}>
-              <Button
-                onClick={tab === "login" ? handleLogin : handleSignup}
-                disabled={
-                  isPending ||
-                  !form.email ||
-                  !form.password ||
-                  (tab === "signup" && !form.confirmPassword)
-                }
-                className="hover:opacity-90 border-0 w-full text-white active:scale-[0.99] transition-all duration-200"
-                style={{
-                  height: 48,
-                  borderRadius: 14,
-                  fontSize: 14,
-                  fontWeight: 600,
-                  letterSpacing: "0.01em",
-                  background: isPending
-                    ? "#748ffc"
-                    : "linear-gradient(135deg, #4263eb 0%, #3451d1 60%, #2f44c8 100%)",
-                  boxShadow: isPending
-                    ? "none"
-                    : "0 6px 24px rgba(59,91,219,0.42), 0 1px 0 rgba(255,255,255,0.2) inset",
-                }}
-              >
-                {isPending ? (
-                  <span className="flex justify-center items-center gap-2">
-                    <Loader2
-                      style={{ width: 16, height: 16 }}
-                      className="animate-spin"
-                    />
-                    {tab === "login" ? "Signing in…" : "Creating account…"}
-                  </span>
-                ) : tab === "login" ? (
-                  "Sign in"
-                ) : (
-                  "Create account"
-                )}
-              </Button>
+                {/* Decorative background circle */}
+                <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] bg-brand-600/10 rounded-full blur-[100px]" />
             </div>
-          </div>
+
+            {/* Right Side: Auth Form */}
+            <div className="flex-1 flex flex-col items-center justify-center p-8 lg:p-20 bg-white">
+                <div className="w-full max-w-md">
+                    {/* Mobile Logo */}
+                    <Link href="/" className="flex md:hidden items-center gap-2 mb-12 justify-center">
+                        <div className="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold shadow-lg">
+                            CF
+                        </div>
+                        <span className="text-xl font-black text-slate-900 tracking-tight">CA FileTrack</span>
+                    </Link>
+
+                    <div className="mb-10 text-center md:text-left">
+                        <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-2">
+                            {tab === "login" ? "Sign In" : "Create Account"}
+                        </h1>
+                        <p className="text-slate-500 font-medium">
+                            {tab === "login" 
+                                ? "Access your firm's dashboard" 
+                                : "Join hundreds of firms already tracking smarter."}
+                        </p>
+                    </div>
+
+                    {/* Tabs */}
+                    <div className="flex p-1 bg-slate-100 rounded-2xl mb-8">
+                        <button
+                            onClick={() => { setTab("login"); setError(""); setSuccess(""); }}
+                            className={cn(
+                                "flex-1 py-2.5 text-sm font-bold rounded-xl transition-all",
+                                tab === "login" ? "bg-white text-brand-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                            )}
+                        >
+                            Log In
+                        </button>
+                        <button
+                            onClick={() => { setTab("signup"); setError(""); setSuccess(""); }}
+                            className={cn(
+                                "flex-1 py-2.5 text-sm font-bold rounded-xl transition-all",
+                                tab === "signup" ? "bg-white text-brand-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                            )}
+                        >
+                            Sign Up
+                        </button>
+                    </div>
+
+                    <div className="space-y-5">
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Email Address</label>
+                            <Input
+                                type="email"
+                                placeholder="name@firm.com"
+                                value={form.email}
+                                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                                disabled={isPending}
+                                className="h-12 rounded-2xl bg-slate-50 border-slate-200 focus:bg-white transition-all shadow-none"
+                            />
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Password</label>
+                            <div className="relative">
+                                <Input
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="••••••••"
+                                    value={form.password}
+                                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                                    disabled={isPending}
+                                    className="h-12 rounded-2xl bg-slate-50 border-slate-200 focus:bg-white transition-all pr-12 shadow-none"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                >
+                                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                </button>
+                            </div>
+                        </div>
+
+                        {tab === "signup" && (
+                            <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2">
+                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Confirm Password</label>
+                                <Input
+                                    type="password"
+                                    placeholder="••••••••"
+                                    value={form.confirmPassword}
+                                    onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+                                    disabled={isPending}
+                                    className="h-12 rounded-2xl bg-slate-50 border-slate-200 focus:bg-white transition-all shadow-none"
+                                />
+                            </div>
+                        )}
+
+                        {error && (
+                            <div className="p-4 rounded-2xl bg-red-50 border border-red-100 text-red-600 text-sm font-bold flex items-center gap-3 animate-in fade-in zoom-in-95">
+                                <span className="w-1.5 h-1.5 rounded-full bg-red-600 shrink-0" />
+                                {error}
+                            </div>
+                        )}
+
+                        {success && (
+                            <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-600 text-sm font-bold flex items-center gap-3 animate-in fade-in zoom-in-95">
+                                <CheckCircle2 className="w-5 h-5 shrink-0" />
+                                {success}
+                            </div>
+                        )}
+
+                        <Button
+                            onClick={tab === "login" ? handleLogin : handleSignup}
+                            disabled={isPending || !form.email || !form.password || (tab === "signup" && !form.confirmPassword)}
+                            className="w-full h-14 rounded-2xl bg-brand-600 hover:bg-brand-700 text-lg font-black shadow-lg shadow-brand-100 transition-all active:scale-[0.98] mt-4"
+                        >
+                            {isPending ? (
+                                <Loader2 className="w-6 h-6 animate-spin" />
+                            ) : (
+                                tab === "login" ? "Sign In" : "Get Started"
+                            )}
+                        </Button>
+
+                        <p className="text-center text-slate-400 text-xs mt-8">
+                            {tab === "login" 
+                                ? "Don't have an account? Reach out to your administrator." 
+                                : "By signing up, you agree to our Terms of Service."}
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 }

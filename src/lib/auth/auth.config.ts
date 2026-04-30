@@ -28,10 +28,11 @@ export default {
         authorized({ auth, request: { nextUrl } }) {
             const isLoggedIn = !!auth?.user;
             const isLoginPage = nextUrl.pathname.startsWith("/login");
+            const isPublicPage = nextUrl.pathname === "/" || isLoginPage;
 
-            if (isLoginPage) {
-                // Redirect logged-in users away from /login
-                if (isLoggedIn) return Response.redirect(new URL("/", nextUrl));
+            if (isPublicPage) {
+                // Redirect logged-in users away from landing/login to dashboard
+                if (isLoggedIn) return Response.redirect(new URL("/dashboard", nextUrl));
                 return true;
             }
 
