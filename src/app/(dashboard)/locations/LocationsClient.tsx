@@ -1,18 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { StorageTreeNode, StorageLocation } from "@/types/storage";
-import { StorageTree } from "@/components/storage/StorageTree";
+import { useState, useEffect, useRef } from "react";
+import { StorageTreeNode } from "@/types/storage";
+import { StorageTree, StorageTreeRef } from "@/components/storage/StorageTree";
 import { LocationDetail } from "@/components/storage/LocationDetail";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
 
 export function LocationsClient() {
     const [tree, setTree] = useState<StorageTreeNode[]>([]);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
+    const treeRef = useRef<StorageTreeRef>(null);
 
     const fetchTree = async () => {
         try {
@@ -20,7 +20,6 @@ export function LocationsClient() {
             if (res.ok) {
                 const data = await res.json();
                 setTree(data);
-
                 // Auto-select first node if none selected
                 if (!selectedNodeId && data.length > 0) {
                     setSelectedNodeId(data[0].id);
@@ -33,6 +32,7 @@ export function LocationsClient() {
 
     useEffect(() => {
         fetchTree();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Find the selected node and its path
@@ -77,7 +77,10 @@ export function LocationsClient() {
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
-                    <Button className="bg-brand-600 hover:bg-brand-700 text-white rounded-xl h-10 px-4 shadow-soft">
+                    <Button
+                        className="bg-brand-600 hover:bg-brand-700 text-white rounded-xl h-10 px-4 shadow-soft"
+                        onClick={() => treeRef.current?.openAddRoot()}
+                    >
                         <Plus className="w-4 h-4 mr-2" />
                         Add Root Location
                     </Button>
@@ -92,6 +95,7 @@ export function LocationsClient() {
                     </div>
                     <div className="flex-1 overflow-y-auto p-3">
                         <StorageTree
+                            ref={treeRef}
                             tree={tree}
                             selectedNodeId={selectedNodeId}
                             onSelectNode={setSelectedNodeId}

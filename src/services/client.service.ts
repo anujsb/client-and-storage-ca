@@ -35,9 +35,16 @@ export const ClientService = {
     });
   },
 
-  async getClientById(tenantId: string, clientId: string): Promise<Client | undefined> {
+  async getClientById(tenantId: string, clientId: string): Promise<any | undefined> {
     return await db.query.clients.findFirst({
       where: and(eq(clients.tenantId, tenantId), eq(clients.id, clientId)),
+      with: {
+        defaultLocation: true,
+        filingSubscriptions: {
+          where: (subs: any, { eq }: any) => eq(subs.isActive, true),
+          with: { filingType: true },
+        },
+      },
     });
   },
 

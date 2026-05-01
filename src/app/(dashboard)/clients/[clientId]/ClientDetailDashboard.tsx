@@ -10,7 +10,7 @@ import { DocumentStatusBadge } from "@/components/documents/DocumentStatusBadge"
 import { 
     ArrowLeft, Pencil, FileText, AlertTriangle, 
     CheckCircle2, Clock, MapPin, Phone, Mail, 
-    RefreshCw, Calendar, File, ClipboardList
+    RefreshCw, Calendar, File, ClipboardList, Folder
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -39,21 +39,15 @@ export function ClientDetailDashboard({ clientId }: ClientDetailDashboardProps) 
     useEffect(() => {
         const fetchClient = async () => {
             try {
-                // Assuming we can fetch client directly via an API route. 
-                // We'll use the existing /api/clients route if it returns a specific client, 
-                // or we'll fetch all and filter for now (ideally we should have /api/clients/[id]).
-                // Actually, the server component passes the client down? The plan said to fetch inline.
-                // Let's fetch subscriptions first, which we know exists.
-                const subsRes = await fetch(`/api/clients/${clientId}/subscriptions`);
-                if (subsRes.ok) setSubscriptions(await subsRes.json());
-
-                // We need the client details. If we don't have a GET /api/clients/[id], 
-                // we'll fetch from /api/clients and find it.
-                const clientsRes = await fetch(`/api/clients`);
-                if (clientsRes.ok) {
-                    const allClients = await clientsRes.json();
-                    const found = allClients.find((c: any) => c.id === clientId);
-                    setClient(found);
+                // Use the dedicated endpoint for efficiency
+                const clientRes = await fetch(`/api/clients/${clientId}`);
+                if (clientRes.ok) {
+                    const clientData = await clientRes.json();
+                    setClient(clientData);
+                    // Subscriptions are included in the client response
+                    if (clientData.filingSubscriptions) {
+                        setSubscriptions(clientData.filingSubscriptions);
+                    }
                 }
             } catch (e) {
                 toast.error("Failed to load client profile");
@@ -389,6 +383,24 @@ export function ClientDetailDashboard({ clientId }: ClientDetailDashboardProps) 
                                         </div>
                                     );
                                 })}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Storage Folder */}
+                    {client.defaultLocation && (
+                        <div className="bg-white rounded-[24px] border border-border-base shadow-sm p-6">
+                            <h3 className="text-[15px] font-bold text-brand-900 tracking-tight mb-4">Physical Storage</h3>
+                            <div className="flex items-center gap-3 p-3 bg-brand-50 rounded-xl border border-brand-100">
+                                <div className="w-9 h-9 rounded-xl bg-brand-100 flex items-center justify-center shrink-0">
+                                    <Folder className="w-4 h-4 text-brand-600" />
+                                </div>
+                                <div className="min-w-0">
+                                    <div className="text-[13px] font-bold text-brand-900 truncate">{client.defaultLocation.name}</div>
+                                    {client.defaultLocation.levelLabel && (
+                                        <div className="text-[11px] text-brand-600/70 font-medium">{client.defaultLocation.levelLabel}</div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     )}
