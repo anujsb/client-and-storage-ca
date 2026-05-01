@@ -47,11 +47,21 @@ export const ClientService = {
     let defaultLocationId = null;
 
     if (parentLocationId) {
+      const siblings = await db.query.storageLocations.findMany({
+        where: and(
+          eq(storageLocations.tenantId, tenantId),
+          eq(storageLocations.parentId, parentLocationId)
+        ),
+      });
+      const nextSortOrder = siblings.length > 0 ? Math.max(...siblings.map(s => s.sortOrder)) + 1 : 0;
+      const sequenceNumber = siblings.length + 1;
+
       const [newLocation] = await db.insert(storageLocations).values({
         tenantId,
         parentId: parentLocationId,
-        name: `${clientCode} - ${data.name}`,
+        name: `${sequenceNumber} - ${data.name}`,
         levelLabel: "Folder",
+        sortOrder: nextSortOrder,
       }).returning();
       
       defaultLocationId = newLocation.id;
@@ -74,11 +84,21 @@ export const ClientService = {
     if (parentLocationId) {
       const existingClient = await this.getClientById(tenantId, clientId);
       if (existingClient && !existingClient.defaultLocationId) {
+        const siblings = await db.query.storageLocations.findMany({
+          where: and(
+            eq(storageLocations.tenantId, tenantId),
+            eq(storageLocations.parentId, parentLocationId)
+          ),
+        });
+        const nextSortOrder = siblings.length > 0 ? Math.max(...siblings.map(s => s.sortOrder)) + 1 : 0;
+        const sequenceNumber = siblings.length + 1;
+
         const [newLocation] = await db.insert(storageLocations).values({
           tenantId,
           parentId: parentLocationId,
-          name: `${existingClient.clientCode} - ${updateData.name || existingClient.name}`,
+          name: `${sequenceNumber} - ${updateData.name || existingClient.name}`,
           levelLabel: "Folder",
+          sortOrder: nextSortOrder,
         }).returning();
         
         (updateData as any).defaultLocationId = newLocation.id;
