@@ -36,8 +36,19 @@ type SortDirection = "asc" | "desc";
 export function ClientTable({ clients }: ClientTableProps) {
     const router = useRouter();
     const [searchQuery, setSearchQuery] = useState("");
+    const [filingTypeFilter, setFilingTypeFilter] = useState<string>("all");
     const [sortField, setSortField] = useState<SortField>("createdAt");
     const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+
+    const availableFilingTypes = useMemo(() => {
+        const typesMap = new Map<string, string>();
+        clients.forEach(c => {
+            c.filingSubscriptions?.forEach(sub => {
+                typesMap.set(sub.filingType.code, sub.filingType.name);
+            });
+        });
+        return Array.from(typesMap.entries()).map(([code, name]) => ({ code, name })).sort((a, b) => a.code.localeCompare(b.code));
+    }, [clients]);
 
     const handleSort = (field: SortField) => {
         if (sortField === field) {
@@ -50,7 +61,8 @@ export function ClientTable({ clients }: ClientTableProps) {
 
     const filteredAndSortedClients = useMemo(() => {
         // Filter
-        let result = clients;
+        let result = [...clients]; // Copy array to prevent mutating original state
+
         if (searchQuery) {
             const q = searchQuery.toLowerCase();
             result = result.filter(c => 
@@ -60,21 +72,29 @@ export function ClientTable({ clients }: ClientTableProps) {
             );
         }
 
+        // Filter by Filing Type
+        if (filingTypeFilter !== "all") {
+            result = result.filter(c => 
+                c.filingSubscriptions?.some(sub => sub.filingType.code === filingTypeFilter)
+            );
+        }
+
         // Sort
         return result.sort((a, b) => {
-            let valA: string = a[sortField] || "";
-            let valB: string = b[sortField] || "";
-            
             if (sortField === "createdAt") {
-                valA = new Date(a.createdAt).getTime().toString();
-                valB = new Date(b.createdAt).getTime().toString();
+                const timeA = new Date(a.createdAt).getTime();
+                const timeB = new Date(b.createdAt).getTime();
+                return sortDirection === "asc" ? timeA - timeB : timeB - timeA;
             }
+
+            const valA = (a[sortField as keyof typeof a] as string || "").toLowerCase();
+            const valB = (b[sortField as keyof typeof b] as string || "").toLowerCase();
 
             if (valA < valB) return sortDirection === "asc" ? -1 : 1;
             if (valA > valB) return sortDirection === "asc" ? 1 : -1;
             return 0;
         });
-    }, [clients, searchQuery, sortField, sortDirection]);
+    }, [clients, searchQuery, filingTypeFilter, sortField, sortDirection]);
 
     const SortIcon = ({ field }: { field: SortField }) => {
         if (sortField !== field) return <ArrowUpDown className="w-3 h-3 ml-1 text-text-muted/50 inline-block" />;
@@ -107,15 +127,27 @@ export function ClientTable({ clients }: ClientTableProps) {
     return (
         <div className="space-y-4">
             {/* Filter Bar */}
-            <div className="flex items-center justify-between bg-white p-3 rounded-2xl border border-border-base shadow-sm">
-                <div className="relative w-full max-w-md">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-                    <Input 
-                        placeholder="Search by name, code or PAN..." 
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-9 h-10 rounded-xl border-border-base bg-bg-main/50 focus-visible:ring-brand-500"
-                    />
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between bg-white p-3 rounded-2xl border border-border-base shadow-sm gap-3">
+                <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
+                    <div className="relative w-full md:w-[320px]">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+                        <Input 
+                            placeholder="Search by name, code or PAN..." 
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-9 h-10 rounded-xl border-border-base bg-bg-main/50 focus-visible:ring-1 focus-visible:ring-brand-500"
+                        />
+                    </div>
+                    <select
+                        value={filingTypeFilter}
+                        onChange={(e) => setFilingTypeFilter(e.target.value)}
+                        className="h-10 rounded-xl border border-border-base bg-bg-main/50 px-3 text-[13px] font-medium text-text-dark focus-visible:ring-1 focus-visible:ring-brand-500 outline-none w-full md:w-auto"
+                    >
+                        <option value="all">All Filing Types</option>
+                        {availableFilingTypes.map(ft => (
+                            <option key={ft.code} value={ft.code}>{ft.code} - {ft.name}</option>
+                        ))}
+                    </select>
                 </div>
                 <div className="text-[13px] text-text-muted font-medium px-4">
                     Showing <span className="font-bold text-text-dark">{filteredAndSortedClients.length}</span> clients

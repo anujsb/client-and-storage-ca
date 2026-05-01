@@ -17,11 +17,26 @@ export async function PATCH(req: Request, { params }: Params) {
             filedDate: body.filedDate ? new Date(body.filedDate) : undefined,
             acknowledgmentNo: body.acknowledgmentNo,
             notes: body.notes,
+            periodLabel: body.periodLabel,
+            dueDate: body.dueDate ? new Date(body.dueDate) : undefined,
+            filingTypeId: body.filingTypeId,
         });
 
         return NextResponse.json(updated);
     } catch (err: any) {
         return NextResponse.json({ error: err.message || "Failed to update" }, { status: 500 });
+    }
+}
+
+export async function DELETE(req: Request, { params }: Params) {
+    try {
+        const tenantId = await getTenantId();
+        const { recordId } = await params;
+        
+        await FilingService.deleteFilingRecord(tenantId, recordId);
+        return NextResponse.json({ success: true });
+    } catch (err: any) {
+        return NextResponse.json({ error: err.message || "Failed to delete" }, { status: 500 });
     }
 }
 

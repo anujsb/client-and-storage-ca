@@ -31,6 +31,7 @@ export function WorksBoardClient() {
     const [statusFilter, setStatusFilter] = useState("all");
     const [assigneeFilter, setAssigneeFilter] = useState("all");
     const [priorityFilter, setPriorityFilter] = useState("all");
+    const [clientFilter, setClientFilter] = useState("all");
 
     // View settings
     const [viewMode, setViewMode] = useState<ViewMode>("kanban");
@@ -75,6 +76,15 @@ export function WorksBoardClient() {
         return Array.from(map.values());
     }, [works]);
 
+    // Extract unique clients for the filter dropdown
+    const uniqueClients = useMemo(() => {
+        const map = new Map<string, { id: string; name: string }>();
+        works.forEach(w => {
+            if (w.client) map.set(w.client.id, w.client);
+        });
+        return Array.from(map.values());
+    }, [works]);
+
     // Apply filters
     const filteredWorks = useMemo(() => {
         return works.filter(w => {
@@ -101,9 +111,12 @@ export function WorksBoardClient() {
                 if (assigneeFilter !== "unassigned" && (!w.assignee || w.assignee.id !== assigneeFilter)) return false;
             }
 
+            // Client filter
+            if (clientFilter !== "all" && w.client?.id !== clientFilter) return false;
+
             return true;
         });
-    }, [works, searchQuery, statusFilter, assigneeFilter, priorityFilter]);
+    }, [works, searchQuery, statusFilter, assigneeFilter, priorityFilter, clientFilter]);
 
     const handleWorkMove = async (workId: string, newFieldId: string) => {
         const work = works.find(w => w.id === workId);
@@ -172,7 +185,10 @@ export function WorksBoardClient() {
                 setStatusFilter={setStatusFilter}
                 priorityFilter={priorityFilter}
                 setPriorityFilter={setPriorityFilter}
+                clientFilter={clientFilter}
+                setClientFilter={setClientFilter}
                 uniqueAssignees={uniqueAssignees}
+                uniqueClients={uniqueClients}
                 onQuickCreate={() => setIsFormOpen(true)}
             />
 

@@ -5,7 +5,7 @@ import {
     filingRecords,
     clients,
 } from "@/lib/db/schema";
-import { eq, and, lte, or, inArray, desc, asc } from "drizzle-orm";
+import { eq, and, lte, or, inArray, desc, asc, gte } from "drizzle-orm";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -261,25 +261,31 @@ export const FilingService = {
      */
     async getUpcomingFilings(
         tenantId: string,
-        daysAhead: number = 30
+        daysAhead: number = 365
     ): Promise<FilingRecordWithClientAndType[]> {
         const cutoff = new Date();
         cutoff.setDate(cutoff.getDate() + daysAhead);
 
+        const pastCutoff = new Date();
+        pastCutoff.setMonth(pastCutoff.getMonth() - 3); // Show history up to 3 months ago
+
         const records = await db.query.filingRecords.findMany({
             where: and(
                 eq(filingRecords.tenantId, tenantId),
+                lte(filingRecords.dueDate, cutoff),
                 or(
+                    // If it's pending/in_progress, show it even if it's older than 3 months (overdue)
                     eq(filingRecords.status, "pending"),
                     eq(filingRecords.status, "in_progress"),
-                ),
-                lte(filingRecords.dueDate, cutoff),
+                    // If it's filed, only show if it was due in the last 3 months
+                    gte(filingRecords.dueDate, pastCutoff)
+                )
             ),
             with: {
                 filingType: true,
                 client: true,
             },
-            orderBy: [asc(filingRecords.dueDate)],
+            orderBy: [desc(filingRecords.dueDate)],
         });
 
         return records.map(r => ({
@@ -333,7 +339,7 @@ export const FilingService = {
         }) as FilingRecordWithType[];
     },
 
-    /** Update a filing record (mark filed, enter ack number, change status) */
+    /** Update a filing record (mark filed, enter ack number, change status, or edit details) */
     async updateFilingRecord(
         tenantId: string,
         recordId: string,
@@ -342,6 +348,9 @@ export const FilingService = {
             filedDate?: Date | null;
             acknowledgmentNo?: string | null;
             notes?: string | null;
+            periodLabel?: string;
+            dueDate?: Date;
+            filingTypeId?: string;
         }
     ): Promise<FilingRecord> {
         const [updated] = await db
@@ -360,6 +369,43 @@ export const FilingService = {
 
         if (!updated) throw new Error("Filing record not found");
         return updated;
+    },
+
+    /** Manually create a single filing record */
+    async createFilingRecord(
+        tenantId: string,
+        data: {
+            clientId: string;
+            filingTypeId: string;
+            periodLabel: string;
+            dueDate: Date;
+            status?: typeof filingRecords.$inferInsert["status"];
+            notes?: string | null;
+        }
+    ): Promise<FilingRecord> {
+        const [record] = await db
+            .insert(filingRecords)
+            .values({
+                tenantId,
+                clientId: data.clientId,
+                filingTypeId: data.filingTypeId,
+                periodLabel: data.periodLabel,
+                dueDate: data.dueDate,
+                status: data.status || "pending",
+                notes: data.notes,
+                periodStart: new Date(), // Manual records might not have strict periods
+                periodEnd: new Date(),
+            })
+            .returning();
+        
+        return record;
+    },
+
+    /** Delete a filing record */
+    async deleteFilingRecord(tenantId: string, recordId: string): Promise<void> {
+        await db
+            .delete(filingRecords)
+            .where(and(eq(filingRecords.tenantId, tenantId), eq(filingRecords.id, recordId)));
     },
 
     /**

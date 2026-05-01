@@ -25,7 +25,10 @@ interface WorksFilterBarProps {
     setStatusFilter: (val: string) => void;
     priorityFilter: string;
     setPriorityFilter: (val: string) => void;
+    clientFilter: string;
+    setClientFilter: (val: string) => void;
     uniqueAssignees: { id: string; name: string }[];
+    uniqueClients: { id: string; name: string }[];
     onQuickCreate: () => void;
 }
 
@@ -42,7 +45,10 @@ export function WorksFilterBar({
     setStatusFilter,
     priorityFilter,
     setPriorityFilter,
+    clientFilter,
+    setClientFilter,
     uniqueAssignees,
+    uniqueClients,
     onQuickCreate,
 }: WorksFilterBarProps) {
     return (
@@ -138,6 +144,18 @@ export function WorksFilterBar({
                     </SelectContent>
                 </Select>
 
+                <Select value={clientFilter} onValueChange={setClientFilter}>
+                    <SelectTrigger className="h-8 w-[140px] text-xs">
+                        <SelectValue placeholder="All Clients" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Clients</SelectItem>
+                        {uniqueClients.map(c => (
+                            <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+
                 <Select value={priorityFilter} onValueChange={setPriorityFilter}>
                     <SelectTrigger className="h-8 w-[120px] text-xs">
                         <SelectValue placeholder="All Priorities" />
@@ -152,7 +170,7 @@ export function WorksFilterBar({
                     </SelectContent>
                 </Select>
 
-                {(assigneeFilter !== "all" || statusFilter !== "all" || priorityFilter !== "all") && (
+                {(assigneeFilter !== "all" || statusFilter !== "all" || priorityFilter !== "all" || clientFilter !== "all") && (
                     <Button 
                         variant="ghost" 
                         size="sm" 
@@ -160,6 +178,7 @@ export function WorksFilterBar({
                             setAssigneeFilter("all");
                             setStatusFilter("all");
                             setPriorityFilter("all");
+                            setClientFilter("all");
                         }}
                         className="h-8 px-2 text-xs text-brand-600 hover:text-brand-700 hover:bg-brand-50 ml-auto"
                     >

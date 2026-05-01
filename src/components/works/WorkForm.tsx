@@ -14,13 +14,17 @@ interface WorkFormProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSuccess?: () => void;
+    initialClientId?: string;
+    initialFilingType?: string;
+    initialTitle?: string;
 }
 
-export function WorkForm({ open, onOpenChange, onSuccess }: WorkFormProps) {
+export function WorkForm({ open, onOpenChange, onSuccess, initialClientId, initialFilingType, initialTitle }: WorkFormProps) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [clients, setClients] = useState<any[]>([]);
     const [employees, setEmployees] = useState<any[]>([]);
+    const [filingTypes, setFilingTypes] = useState<any[]>([]);
 
     const [formData, setFormData] = useState({
         title: "",
@@ -35,12 +39,38 @@ export function WorkForm({ open, onOpenChange, onSuccess }: WorkFormProps) {
         estimatedMinutes: 0,
     });
 
+    // Reset or prepopulate form when opened
+    useEffect(() => {
+        if (open) {
+            setFormData(prev => ({
+                ...prev,
+                title: initialTitle || "",
+                clientId: initialClientId || "",
+                filingType: initialFilingType || "",
+                employeeId: "none",
+                priority: "normal",
+                description: "",
+                tags: "",
+                dueDate: "",
+                estimatedMinutes: 0,
+            }));
+        }
+    }, [open, initialClientId, initialFilingType, initialTitle]);
+
     useEffect(() => {
         if (open) {
             fetchClients();
             fetchEmployees();
+            fetchFilingTypes();
         }
     }, [open]);
+
+    const fetchFilingTypes = async () => {
+        try {
+            const res = await fetch("/api/filing-types");
+            if (res.ok) setFilingTypes(await res.json());
+        } catch (e) {}
+    };
 
     const fetchClients = async () => {
         try {
@@ -85,9 +115,6 @@ export function WorkForm({ open, onOpenChange, onSuccess }: WorkFormProps) {
 
             if (res.ok) {
                 onOpenChange(false);
-                setFormData({
-                    title: "", clientId: "", employeeId: "none", filingType: "", customFilingType: "", priority: "normal", description: "", tags: "", dueDate: "", estimatedMinutes: 0
-                });
                 router.refresh();
                 if (onSuccess) onSuccess();
             } else {
@@ -153,10 +180,9 @@ export function WorkForm({ open, onOpenChange, onSuccess }: WorkFormProps) {
                                     <SelectValue placeholder="Select Type" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="ITR">ITR</SelectItem>
-                                    <SelectItem value="GST">GST</SelectItem>
-                                    <SelectItem value="TDS">TDS</SelectItem>
-                                    <SelectItem value="Audit">Audit</SelectItem>
+                                    {filingTypes.map(ft => (
+                                        <SelectItem key={ft.id} value={ft.code}>{ft.code} - {ft.name}</SelectItem>
+                                    ))}
                                     <SelectItem value="custom">Custom...</SelectItem>
                                 </SelectContent>
                             </Select>

@@ -20,6 +20,7 @@ interface PaymentFormProps {
 export function PaymentForm({ open, onOpenChange, onSuccess, payment }: PaymentFormProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [clients, setClients] = useState<any[]>([]);
+    const [filingTypes, setFilingTypes] = useState<any[]>([]);
 
     const [formData, setFormData] = useState({
         clientId: "",
@@ -35,6 +36,7 @@ export function PaymentForm({ open, onOpenChange, onSuccess, payment }: PaymentF
     useEffect(() => {
         if (open) {
             fetchClients();
+            fetchFilingTypes();
             if (payment) {
                 setFormData({
                     clientId: payment.client?.id || payment.clientId || "",
@@ -58,6 +60,13 @@ export function PaymentForm({ open, onOpenChange, onSuccess, payment }: PaymentF
         try {
             const res = await fetch("/api/clients");
             if (res.ok) setClients(await res.json());
+        } catch (e) {}
+    };
+
+    const fetchFilingTypes = async () => {
+        try {
+            const res = await fetch("/api/filing-types");
+            if (res.ok) setFilingTypes(await res.json());
         } catch (e) {}
     };
 
@@ -130,7 +139,17 @@ export function PaymentForm({ open, onOpenChange, onSuccess, payment }: PaymentF
                         </div>
                         <div className="space-y-2">
                             <Label>Filing Type <span className="text-red-500">*</span></Label>
-                            <Input required placeholder="e.g. ITR Filing" value={formData.filingType} onChange={e => setFormData({...formData, filingType: e.target.value})} className="h-10 rounded-xl" />
+                            <Select required value={formData.filingType || undefined} onValueChange={v => setFormData({...formData, filingType: v})}>
+                                <SelectTrigger className="h-10 rounded-xl">
+                                    <SelectValue placeholder="Select Type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {filingTypes.map(ft => (
+                                        <SelectItem key={ft.id} value={ft.code}>{ft.code} - {ft.name}</SelectItem>
+                                    ))}
+                                    <SelectItem value="custom">Custom...</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
 
