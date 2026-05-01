@@ -64,7 +64,8 @@ export function WorksTable({ works }: WorksTableProps) {
 
     return (
         <div className="bg-white rounded-2xl border border-border-base overflow-hidden shadow-sm">
-            <Table>
+            <div className="overflow-x-auto">
+                <Table className="min-w-[900px] md:min-w-full">
                 <TableHeader className="bg-slate-50 border-b border-border-light">
                     <TableRow className="hover:bg-transparent">
                         <TableHead className="font-semibold text-slate-600 text-xs tracking-wider uppercase pl-6">Client</TableHead>
@@ -135,6 +136,7 @@ export function WorksTable({ works }: WorksTableProps) {
                     ))}
                 </TableBody>
             </Table>
+            </div>
         </div>
     );
 }

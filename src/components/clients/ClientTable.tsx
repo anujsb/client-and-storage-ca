@@ -156,32 +156,33 @@ export function ClientTable({ clients }: ClientTableProps) {
 
             {/* Table */}
             <div className="rounded-[24px] border border-border-base overflow-hidden bg-white shadow-soft w-full">
-                <table className="w-full text-left text-[13px]">
-                    <thead className="bg-bg-main text-[11px] font-bold text-text-muted uppercase tracking-wider">
-                        <tr>
-                            <th 
-                                className="px-5 py-3 cursor-pointer hover:bg-border-light transition-colors"
-                                onClick={() => handleSort("clientCode")}
-                            >
-                                Client Code <SortIcon field="clientCode" />
-                            </th>
-                            <th 
-                                className="px-5 py-3 cursor-pointer hover:bg-border-light transition-colors"
-                                onClick={() => handleSort("name")}
-                            >
-                                Full Name <SortIcon field="name" />
-                            </th>
-                            <th className="px-5 py-3">PAN Number</th>
-                            <th className="px-5 py-3 hidden md:table-cell">Phone</th>
-                            <th className="px-5 py-3">Filings</th>
-                            <th 
-                                className="px-5 py-3 hidden lg:table-cell cursor-pointer hover:bg-border-light transition-colors"
-                                onClick={() => handleSort("createdAt")}
-                            >
-                                Added On <SortIcon field="createdAt" />
-                            </th>
-                        </tr>
-                    </thead>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left text-[13px] min-w-[700px] md:min-w-full">
+                        <thead className="bg-bg-main text-[11px] font-bold text-text-muted uppercase tracking-wider">
+                            <tr>
+                                <th 
+                                    className="px-5 py-3 cursor-pointer hover:bg-border-light transition-colors"
+                                    onClick={() => handleSort("clientCode")}
+                                >
+                                    Client Code <SortIcon field="clientCode" />
+                                </th>
+                                <th 
+                                    className="px-5 py-3 cursor-pointer hover:bg-border-light transition-colors"
+                                    onClick={() => handleSort("name")}
+                                >
+                                    Full Name <SortIcon field="name" />
+                                </th>
+                                <th className="px-5 py-3">PAN Number</th>
+                                <th className="px-5 py-3 hidden md:table-cell">Phone</th>
+                                <th className="px-5 py-3">Filings</th>
+                                <th 
+                                    className="px-5 py-3 hidden lg:table-cell cursor-pointer hover:bg-border-light transition-colors"
+                                    onClick={() => handleSort("createdAt")}
+                                >
+                                    Added On <SortIcon field="createdAt" />
+                                </th>
+                            </tr>
+                        </thead>
                     <tbody className="divide-y divide-border-light">
                         {filteredAndSortedClients.length === 0 ? (
                             <tr>
@@ -243,6 +244,7 @@ export function ClientTable({ clients }: ClientTableProps) {
                         )}
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     );

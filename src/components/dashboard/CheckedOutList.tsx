@@ -21,14 +21,14 @@ export function CheckedOutList({ documents }: { documents: any[] }) {
                 const isUrgent = daysOut > 7;
 
                 return (
-                    <div key={doc.id} className="flex items-center justify-between p-3 rounded-xl border border-border-base hover:bg-slate-50 transition-colors">
-                        <div className="flex items-center gap-3">
+                    <div key={doc.id} className="flex items-center justify-between p-3 rounded-xl border border-border-base hover:bg-slate-50 transition-colors gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
                             <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${isUrgent ? 'bg-red-50 text-red-500' : 'bg-brand-50 text-brand-500'}`}>
                                 <FileText className="w-5 h-5" />
                             </div>
-                            <div>
-                                <div className="text-sm font-bold text-text-dark line-clamp-1">{doc.documentName}</div>
-                                <div className="text-[11px] font-semibold text-text-muted">
+                            <div className="min-w-0">
+                                <div className="text-sm font-bold text-text-dark truncate">{doc.documentName}</div>
+                                <div className="text-[11px] font-semibold text-text-muted truncate">
                                     {doc.client.clientCode} • {doc.employee?.name || "Unknown"}
                                 </div>
                             </div>

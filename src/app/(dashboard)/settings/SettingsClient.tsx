@@ -68,21 +68,21 @@ export function SettingsClient({ initialFirmProfile, initialPreferences }: Setti
                     <TabsList className="flex flex-row md:flex-col h-auto w-full bg-transparent p-3 gap-1 overflow-x-auto rounded-none">
                         <TabsTrigger 
                             value="profile" 
-                            className="w-full justify-start px-4 py-3 text-sm font-semibold rounded-xl data-[state=active]:bg-white data-[state=active]:text-brand-600 data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-border-base"
+                            className="w-auto md:w-full justify-start px-4 py-3 text-sm font-semibold rounded-xl data-[state=active]:bg-white data-[state=active]:text-brand-600 data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-border-base whitespace-nowrap"
                         >
                             <Building2 className="w-4 h-4 mr-3" />
                             Firm Profile
                         </TabsTrigger>
                         <TabsTrigger 
                             value="preferences" 
-                            className="w-full justify-start px-4 py-3 text-sm font-semibold rounded-xl data-[state=active]:bg-white data-[state=active]:text-brand-600 data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-border-base"
+                            className="w-auto md:w-full justify-start px-4 py-3 text-sm font-semibold rounded-xl data-[state=active]:bg-white data-[state=active]:text-brand-600 data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-border-base whitespace-nowrap"
                         >
                             <Settings2 className="w-4 h-4 mr-3" />
                             Preferences
                         </TabsTrigger>
                         <TabsTrigger 
                             value="tags" 
-                            className="w-full justify-start px-4 py-3 text-sm font-semibold rounded-xl data-[state=active]:bg-white data-[state=active]:text-brand-600 data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-border-base"
+                            className="w-auto md:w-full justify-start px-4 py-3 text-sm font-semibold rounded-xl data-[state=active]:bg-white data-[state=active]:text-brand-600 data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-border-base whitespace-nowrap"
                         >
                             <Tag className="w-4 h-4 mr-3" />
                             Custom Tags

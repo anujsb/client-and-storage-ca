@@ -6,18 +6,18 @@ export default function LandingPage() {
     return (
         <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
             {/* Navigation */}
-            <nav className="h-20 flex items-center justify-between px-8 md:px-20 bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
+            <nav className="h-20 flex items-center justify-between px-4 sm:px-8 md:px-20 bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
                 <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold shadow-lg shadow-brand-200">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold shadow-lg shadow-brand-200 shrink-0">
                         CF
                     </div>
-                    <span className="text-xl font-black text-slate-900 tracking-tight">CA FileTrack</span>
+                    <span className="text-lg sm:text-xl font-black text-slate-900 tracking-tight whitespace-nowrap">CA FileTrack</span>
                 </div>
-                <div className="flex items-center gap-6">
-                    <Link href="/login" className="text-sm font-semibold text-slate-600 hover:text-brand-600 transition-colors">
+                <div className="flex items-center gap-3 sm:gap-6">
+                    <Link href="/login" className="text-xs sm:text-sm font-semibold text-slate-600 hover:text-brand-600 transition-colors whitespace-nowrap">
                         Sign In
                     </Link>
-                    <Button asChild className="rounded-full px-6 bg-brand-600 hover:bg-brand-700 shadow-lg shadow-brand-100">
+                    <Button asChild size="sm" className="rounded-full px-4 sm:px-6 bg-brand-600 hover:bg-brand-700 shadow-lg shadow-brand-100 text-xs sm:text-sm h-9 sm:h-10">
                         <Link href="/login?tab=signup">Get Started</Link>
                     </Button>
                 </div>

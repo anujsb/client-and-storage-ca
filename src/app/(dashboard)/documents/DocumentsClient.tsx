@@ -72,8 +72,8 @@ export function DocumentsClient() {
                             </Select>
                         </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <div className="w-1/3 space-y-1.5">
+                    <div className="flex flex-col md:flex-row items-stretch md:items-end gap-4">
+                        <div className="w-full md:w-1/3 space-y-1.5">
                             <label className="text-[11px] font-bold text-text-muted uppercase tracking-wider">Status</label>
                             <Select>
                                 <SelectTrigger className="rounded-xl h-10">
@@ -86,8 +86,8 @@ export function DocumentsClient() {
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="flex items-end h-full pt-6">
-                            <Button className="bg-brand-600 hover:bg-brand-700 text-white rounded-xl h-10 px-6">
+                        <div className="flex-1">
+                            <Button className="w-full md:w-auto bg-brand-600 hover:bg-brand-700 text-white rounded-xl h-10 px-6">
                                 Search
                             </Button>
                         </div>
@@ -110,7 +110,9 @@ export function DocumentsClient() {
                     {isLoading ? (
                         <div className="p-8 text-center text-text-muted">Loading documents...</div>
                     ) : (
+                    <div className="overflow-x-auto">
                         <DocumentTable documents={documents} />
+                    </div>
                     )}
                 </div>
             </div>

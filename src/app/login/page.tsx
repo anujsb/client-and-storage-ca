@@ -157,7 +157,7 @@ function LoginContent() {
             </div>
 
             {/* Right Side: Auth Form */}
-            <div className="flex-1 flex flex-col items-center justify-center p-8 lg:p-20 bg-white">
+            <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-8 lg:p-20 bg-white">
                 <div className="w-full max-w-md">
                     {/* Mobile Logo */}
                     <Link href="/" className="flex md:hidden items-center gap-2 mb-12 justify-center">

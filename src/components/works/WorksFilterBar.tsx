@@ -97,12 +97,12 @@ export function WorksFilterBar({
             </div>
 
             {/* Filters Row */}
-            <div className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-xl border border-border-base shadow-sm">
-                <span className="text-sm font-semibold text-text-muted mr-2">Filters:</span>
+            <div className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-xl border border-border-base shadow-sm overflow-x-auto no-scrollbar">
+                <span className="text-sm font-semibold text-text-muted mr-2 shrink-0">Filters:</span>
                 
                 {/* Group By (Kanban Only) */}
                 {viewMode === "kanban" && (
-                    <div className="flex items-center gap-2 border-r border-border-base pr-4 mr-1">
+                    <div className="flex items-center gap-2 border-r border-border-base pr-4 mr-1 shrink-0">
                         <span className="text-xs text-text-muted">Group by:</span>
                         <Select value={groupBy} onValueChange={(val: any) => setGroupBy(val)}>
                             <SelectTrigger className="h-8 w-[130px] text-xs">
@@ -118,73 +118,75 @@ export function WorksFilterBar({
                     </div>
                 )}
 
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="h-8 w-[130px] text-xs">
-                        <SelectValue placeholder="All Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Status</SelectItem>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="in_progress">In Progress</SelectItem>
-                        <SelectItem value="under_review">Under Review</SelectItem>
-                        <SelectItem value="completed">Completed</SelectItem>
-                    </SelectContent>
-                </Select>
+                <div className="flex flex-wrap items-center gap-2 min-w-max">
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectTrigger className="h-8 w-[130px] text-xs">
+                            <SelectValue placeholder="All Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Status</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="in_progress">In Progress</SelectItem>
+                            <SelectItem value="under_review">Under Review</SelectItem>
+                            <SelectItem value="completed">Completed</SelectItem>
+                        </SelectContent>
+                    </Select>
 
-                <Select value={assigneeFilter} onValueChange={setAssigneeFilter}>
-                    <SelectTrigger className="h-8 w-[140px] text-xs">
-                        <SelectValue placeholder="All Assignees" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Assignees</SelectItem>
-                        <SelectItem value="unassigned">Unassigned</SelectItem>
-                        {uniqueAssignees.map(a => (
-                            <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                    <Select value={assigneeFilter} onValueChange={setAssigneeFilter}>
+                        <SelectTrigger className="h-8 w-[140px] text-xs">
+                            <SelectValue placeholder="All Assignees" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Assignees</SelectItem>
+                            <SelectItem value="unassigned">Unassigned</SelectItem>
+                            {uniqueAssignees.map(a => (
+                                <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
 
-                <Select value={clientFilter} onValueChange={setClientFilter}>
-                    <SelectTrigger className="h-8 w-[140px] text-xs">
-                        <SelectValue placeholder="All Clients" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Clients</SelectItem>
-                        {uniqueClients.map(c => (
-                            <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                    <Select value={clientFilter} onValueChange={setClientFilter}>
+                        <SelectTrigger className="h-8 w-[140px] text-xs">
+                            <SelectValue placeholder="All Clients" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Clients</SelectItem>
+                            {uniqueClients.map(c => (
+                                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
 
-                <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                    <SelectTrigger className="h-8 w-[120px] text-xs">
-                        <SelectValue placeholder="All Priorities" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Priorities</SelectItem>
-                        <SelectItem value="low">Low</SelectItem>
-                        <SelectItem value="normal">Normal</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="high">High</SelectItem>
-                        <SelectItem value="urgent">Urgent</SelectItem>
-                    </SelectContent>
-                </Select>
+                    <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+                        <SelectTrigger className="h-8 w-[120px] text-xs">
+                            <SelectValue placeholder="All Priorities" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Priorities</SelectItem>
+                            <SelectItem value="low">Low</SelectItem>
+                            <SelectItem value="normal">Normal</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="high">High</SelectItem>
+                            <SelectItem value="urgent">Urgent</SelectItem>
+                        </SelectContent>
+                    </Select>
 
-                {(assigneeFilter !== "all" || statusFilter !== "all" || priorityFilter !== "all" || clientFilter !== "all") && (
-                    <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => {
-                            setAssigneeFilter("all");
-                            setStatusFilter("all");
-                            setPriorityFilter("all");
-                            setClientFilter("all");
-                        }}
-                        className="h-8 px-2 text-xs text-brand-600 hover:text-brand-700 hover:bg-brand-50 ml-auto"
-                    >
-                        Clear Filters
-                    </Button>
-                )}
+                    {(assigneeFilter !== "all" || statusFilter !== "all" || priorityFilter !== "all" || clientFilter !== "all") && (
+                        <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => {
+                                setAssigneeFilter("all");
+                                setStatusFilter("all");
+                                setPriorityFilter("all");
+                                setClientFilter("all");
+                            }}
+                            className="h-8 px-2 text-xs text-brand-600 hover:text-brand-700 hover:bg-brand-50 ml-2"
+                        >
+                            Clear
+                        </Button>
+                    )}
+                </div>
             </div>
         </div>
     );

@@ -41,8 +41,8 @@ export function DocumentTable({ documents }: DocumentTableProps) {
     const router = useRouter();
 
     return (
-        <div className="w-full">
-            <table className="w-full text-left text-[13px]">
+        <div className="w-full overflow-x-auto">
+            <table className="w-full text-left text-[13px] min-w-[800px] md:min-w-full">
                 <thead className="bg-bg-main text-[11px] font-bold text-text-muted uppercase tracking-wider">
                     <tr>
                         <th className="px-5 py-3">Document Code / Name</th>

@@ -86,7 +86,7 @@ export function LocationsClient() {
 
             <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6 items-start">
                 {/* Left Column: Tree */}
-                <div className="bg-white rounded-[24px] border border-border-base shadow-soft h-[calc(100vh-200px)] flex flex-col overflow-hidden">
+                <div className="bg-white rounded-[24px] border border-border-base shadow-soft h-[400px] lg:h-[calc(100vh-200px)] flex flex-col overflow-hidden">
                     <div className="p-4 border-b border-border-light flex items-center justify-between">
                         <h3 className="text-[13px] font-bold text-text-muted tracking-wider uppercase">Location Tree</h3>
                     </div>

@@ -71,7 +71,8 @@ export function EmployeeTable({ employees }: EmployeeTableProps) {
 
   return (
     <div className="rounded-[24px] border border-border-base overflow-hidden bg-white shadow-soft">
-      <Table>
+      <div className="overflow-x-auto">
+        <Table className="min-w-[800px] md:min-w-full">
         <TableHeader>
           <TableRow className="bg-bg-main/50 hover:bg-bg-main/50 border-b border-border-light">
             <TableHead className="text-[11px] font-bold text-text-muted uppercase tracking-wider px-6 py-4">Name</TableHead>
@@ -147,6 +148,7 @@ export function EmployeeTable({ employees }: EmployeeTableProps) {
           ))}
         </TableBody>
       </Table>
+      </div>
     </div>
   );
 }

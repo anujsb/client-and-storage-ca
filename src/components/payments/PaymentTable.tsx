@@ -27,7 +27,7 @@ export function PaymentTable({ payments, onEdit }: PaymentTableProps) {
     return (
         <div className="bg-white rounded-[24px] border border-border-base overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
-                <Table>
+                <Table className="min-w-[900px] md:min-w-full">
                     <TableHeader className="bg-slate-50 border-b border-border-base">
                         <TableRow className="hover:bg-transparent">
                             <TableHead className="font-bold text-text-dark text-xs uppercase tracking-wider py-4 pl-6">Client / Filing</TableHead>

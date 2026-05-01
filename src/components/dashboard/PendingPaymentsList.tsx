@@ -22,14 +22,14 @@ export function PendingPaymentsList({ payments }: { payments: any[] }) {
                 const isOverdue = payment.status === "overdue";
 
                 return (
-                    <div key={payment.id} className="flex items-center justify-between p-3 rounded-xl border border-border-base hover:bg-slate-50 transition-colors">
-                        <div className="flex items-center gap-3">
+                    <div key={payment.id} className="flex items-center justify-between p-3 rounded-xl border border-border-base hover:bg-slate-50 transition-colors gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
                             <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${isOverdue ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-500'}`}>
                                 {isOverdue ? <AlertCircle className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
                             </div>
-                            <div>
-                                <div className="text-sm font-bold text-text-dark line-clamp-1">{payment.client.name}</div>
-                                <div className="text-[11px] font-semibold text-text-muted">
+                            <div className="min-w-0">
+                                <div className="text-sm font-bold text-text-dark truncate">{payment.client.name}</div>
+                                <div className="text-[11px] font-semibold text-text-muted truncate">
                                     {payment.filingType} • {payment.client.clientCode}
                                 </div>
                             </div>
