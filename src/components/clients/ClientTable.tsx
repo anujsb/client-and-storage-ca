@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { FilingTypeBadge } from "@/components/filings/FilingTypeBadge";
 import { Button } from "@/components/ui/button";
-import { Users, Search, ArrowUpDown, ChevronDown, ChevronUp } from "lucide-react";
+import { Users, Search, ArrowUpDown, ChevronDown, ChevronUp, Folder } from "lucide-react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 
@@ -24,6 +24,10 @@ interface ClientWithFilings {
     email: string | null;
     createdAt: string;
     filingSubscriptions?: Array<{ filingType: FilingType }>;
+    defaultLocation?: {
+        name: string;
+        levelLabel?: string | null;
+    } | null;
 }
 
 interface ClientTableProps {
@@ -172,6 +176,7 @@ export function ClientTable({ clients }: ClientTableProps) {
                                 >
                                     Full Name <SortIcon field="name" />
                                 </th>
+                                <th className="px-5 py-3 hidden md:table-cell">Storage Folder</th>
                                 <th className="px-5 py-3">PAN Number</th>
                                 <th className="px-5 py-3 hidden md:table-cell">Phone</th>
                                 <th className="px-5 py-3">Filings</th>
@@ -206,6 +211,18 @@ export function ClientTable({ clients }: ClientTableProps) {
                                         <div className="font-bold text-text-dark group-hover:text-brand-600 transition-colors">
                                             {client.name}
                                         </div>
+                                    </td>
+                                    <td className="px-5 py-3.5 align-top hidden md:table-cell">
+                                        {client.defaultLocation ? (
+                                            <div className="flex items-center gap-1.5 text-[12px] text-brand-700 font-medium">
+                                                <Folder className="w-3.5 h-3.5 shrink-0" />
+                                                <span className="truncate max-w-[150px]" title={client.defaultLocation.name}>
+                                                    {client.defaultLocation.name}
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <span className="text-[12px] text-text-muted italic">—</span>
+                                        )}
                                     </td>
                                     <td className="px-5 py-3.5 align-top text-text-muted font-mono text-[13px]">
                                         {client.pan}

@@ -375,6 +375,7 @@ export const clientsRelations = relations(clients, ({ one, many }) => ({
     payments: many(payments),
     filingSubscriptions: many(clientFilingSubscriptions),
     filingRecords: many(filingRecords),
+    defaultLocation: one(storageLocations, { fields: [clients.defaultLocationId], references: [storageLocations.id] }),
 }));
 
 export const filingTypesRelations = relations(filingTypes, ({ one, many }) => ({

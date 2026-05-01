@@ -30,6 +30,7 @@ export const ClientService = {
           where: (subs: any, { eq }: any) => eq(subs.isActive, true),
           with: { filingType: true },
         },
+        defaultLocation: true,
       },
     });
   },

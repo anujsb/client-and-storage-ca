@@ -692,6 +692,14 @@ Each task is one focused, completable unit. Check off as done.
 - [x] **T-92** Redesign `/clients/[clientId]/page.tsx` — 5-tab layout (Overview, Filings, Works, Documents, Payments)
 - [x] **T-93** Update `/works/page.tsx` — `UpcomingFilingsPanel` above the task board
 
+### Phase 14 — Automated Physical Storage Integration ✅ COMPLETE
+- [x] **T-94** Add `defaultLocationId` to `clients` table in schema and define Drizzle relation.
+- [x] **T-95** Update `scripts/seed.ts` and `api/auth/signup/route.ts` to inject a default folder template (Cupboard 1 > Shelves) for new firms.
+- [x] **T-96** Update `ClientForm` with `LocationPicker` to optionally select a physical location during client creation/editing.
+- [x] **T-97** Update `ClientService` to automatically create a folder named `[sequenceNumber] - [clientName]` under the selected parent location and assign it to the client.
+- [x] **T-98** Update `ClientTable` to fetch `defaultLocation` and display the "Storage Folder" as the 3rd column.
+- [x] **T-99** Update `DocumentForm` to auto-populate the document's location based on the selected client's default folder.
+
 ### Filing Type Reference (System Defaults)
 | Code | Name | Category | Frequency | Due Rule |
 |---|---|---|---|---|
