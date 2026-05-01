@@ -10,6 +10,7 @@ export interface Client {
   email: string | null;
   address: string | null;
   notes: string | null;
+  defaultLocationId: string | null;
   createdAt: Date;
 }
 

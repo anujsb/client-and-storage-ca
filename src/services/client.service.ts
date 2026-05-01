@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { clients } from "@/lib/db/schema";
+import { clients, storageLocations } from "@/lib/db/schema";
 import { eq, desc, and } from "drizzle-orm";
 import { CreateClientInput, UpdateClientInput, Client } from "@/types/client";
 
@@ -43,18 +43,50 @@ export const ClientService = {
   async createClient(tenantId: string, data: CreateClientInput): Promise<Client> {
     const clientCode = await generateClientCode(tenantId);
     
+    const { parentLocationId, ...clientData } = data;
+    let defaultLocationId = null;
+
+    if (parentLocationId) {
+      const [newLocation] = await db.insert(storageLocations).values({
+        tenantId,
+        parentId: parentLocationId,
+        name: `${clientCode} - ${data.name}`,
+        levelLabel: "Folder",
+      }).returning();
+      
+      defaultLocationId = newLocation.id;
+    }
+    
     const [newClient] = await db.insert(clients).values({
       tenantId,
       clientCode,
-      ...data,
+      defaultLocationId,
+      ...clientData,
     }).returning();
     
     return newClient;
   },
 
   async updateClient(tenantId: string, clientId: string, data: UpdateClientInput): Promise<Client> {
+    const { parentLocationId, ...updateData } = data;
+    
+    // If parentLocationId is provided, the user wants to generate a new folder
+    if (parentLocationId) {
+      const existingClient = await this.getClientById(tenantId, clientId);
+      if (existingClient && !existingClient.defaultLocationId) {
+        const [newLocation] = await db.insert(storageLocations).values({
+          tenantId,
+          parentId: parentLocationId,
+          name: `${existingClient.clientCode} - ${updateData.name || existingClient.name}`,
+          levelLabel: "Folder",
+        }).returning();
+        
+        (updateData as any).defaultLocationId = newLocation.id;
+      }
+    }
+
     const [updatedClient] = await db.update(clients)
-      .set(data)
+      .set(updateData)
       .where(and(eq(clients.tenantId, tenantId), eq(clients.id, clientId)))
       .returning();
       

@@ -21,8 +21,11 @@ export async function POST(req: Request) {
   try {
     const tenantId = await getTenantId();
     const body = await req.json();
+    console.log("CLIENT POST BODY:", body);
     
     const validatedData = clientSchema.parse(body);
+    console.log("CLIENT POST VALIDATED DATA:", validatedData);
+    
     const client = await ClientService.createClient(tenantId, validatedData);
     
     return NextResponse.json(client, { status: 201 });

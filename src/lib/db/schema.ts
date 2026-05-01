@@ -136,6 +136,9 @@ export const clients = pgTable("clients", {
     email: text("email"),
     address: text("address"),
     notes: text("notes"),
+    defaultLocationId: uuid("default_location_id").references(() => storageLocations.id, {
+        onDelete: "set null",
+    }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

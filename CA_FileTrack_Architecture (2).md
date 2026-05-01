@@ -118,6 +118,7 @@
 - Identified by **PAN number** (unique per tenant)
 - Auto-assigned **Client Code** on creation: `C-0001`, `C-0002` (FCFS)
 - Client Code = label CA sticks on the physical folder
+- Can automatically create and link a dedicated physical storage folder when assigned a parent location.
 
 ### Document
 - A physical file/document a client brings in
@@ -128,8 +129,13 @@
 
 ### Storage Location
 - Firm defines a custom tree of physical locations
-- Example tree: `Cupboard A > Shelf 2 > Section B`
-- Levels named by the firm (Cabinet, Drawer, Rack, Box…)
+- A standard template is provided by default:
+  - `Cupboard 1`
+    - `Shelf 1 (GST)`
+    - `Shelf 2 (Income Tax)`
+    - `Shelf 3 (Tax Audit)`
+    - `Shelf 4 (Trust Audit)`
+  - `Cupboard 2` (empty)
 - Document location = leaf node in this tree
 
 ### Checkout
@@ -162,7 +168,7 @@ employees
   -- Named records only. No login. Used for assignment + checkout tracking.
 
 clients
-  id (uuid), tenant_id, client_code (C-0001), pan, name, phone, email, address, notes, created_at
+  id (uuid), tenant_id, client_code (C-0001), pan, name, phone, email, address, notes, default_location_id -> storage_locations, created_at
 
 --- FILING SYSTEM (Session 5) ---
 

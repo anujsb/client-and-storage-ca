@@ -20,7 +20,7 @@ interface DocumentFormProps {
 
 export function DocumentForm({ onSuccess }: DocumentFormProps) {
     const [open, setOpen] = useState(false);
-    const [clients, setClients] = useState<{ id: string; name: string }[]>([]);
+    const [clients, setClients] = useState<{ id: string; name: string; defaultLocationId?: string | null }[]>([]);
 
     const form = useForm<CreateDocumentInput>({
         resolver: zodResolver(CreateDocumentSchema as any),
@@ -89,7 +89,16 @@ export function DocumentForm({ onSuccess }: DocumentFormProps) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Client *</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <Select 
+                                        onValueChange={(val) => {
+                                            field.onChange(val);
+                                            const selectedClient = clients.find(c => c.id === val);
+                                            if (selectedClient?.defaultLocationId) {
+                                                form.setValue("locationId", selectedClient.defaultLocationId);
+                                            }
+                                        }} 
+                                        defaultValue={field.value}
+                                    >
                                         <FormControl>
                                             <SelectTrigger className="rounded-xl">
                                                 <SelectValue placeholder="Select client" />

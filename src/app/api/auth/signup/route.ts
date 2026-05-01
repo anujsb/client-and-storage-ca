@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import { db } from "@/lib/db"
-import { users, tenants } from "@/lib/db/schema"
+import { users, tenants, storageLocations } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
 
 export const dynamic = "force-dynamic"
@@ -41,6 +41,22 @@ export async function POST(req: NextRequest) {
       name: "My CA Firm",
       slug: `firm-${Date.now()}`,
     }).returning()
+
+    // Initialize the default storage layout
+    const [cupboard1, cupboard2] = await db
+      .insert(storageLocations)
+      .values([
+        { tenantId: tenant.id, parentId: null, name: "Cupboard 1", levelLabel: "Cupboard", sortOrder: 1 },
+        { tenantId: tenant.id, parentId: null, name: "Cupboard 2", levelLabel: "Cupboard", sortOrder: 2 },
+      ])
+      .returning()
+
+    await db.insert(storageLocations).values([
+      { tenantId: tenant.id, parentId: cupboard1.id, name: "Shelf 1 (GST)", levelLabel: "Shelf", sortOrder: 1 },
+      { tenantId: tenant.id, parentId: cupboard1.id, name: "Shelf 2 (Income Tax)", levelLabel: "Shelf", sortOrder: 2 },
+      { tenantId: tenant.id, parentId: cupboard1.id, name: "Shelf 3 (Tax Audit)", levelLabel: "Shelf", sortOrder: 3 },
+      { tenantId: tenant.id, parentId: cupboard1.id, name: "Shelf 4 (Trust Audit)", levelLabel: "Shelf", sortOrder: 4 },
+    ])
 
     // Hash the password
     const passwordHash = await bcrypt.hash(password, 12)

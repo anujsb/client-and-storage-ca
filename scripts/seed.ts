@@ -75,20 +75,19 @@ async function seed() {
     console.log("✅ Sample employees created");
 
     // ── 4. Sample storage locations ─────────────────────────────────────────────
-    const [cupboard] = await db
+    const [cupboard1, cupboard2] = await db
         .insert(schema.storageLocations)
-        .values({
-            tenantId: tenant.id,
-            parentId: null,
-            name: "Main Cupboard",
-            levelLabel: "Cupboard",
-            sortOrder: 1,
-        })
+        .values([
+            { tenantId: tenant.id, parentId: null, name: "Cupboard 1", levelLabel: "Cupboard", sortOrder: 1 },
+            { tenantId: tenant.id, parentId: null, name: "Cupboard 2", levelLabel: "Cupboard", sortOrder: 2 },
+        ])
         .returning();
 
     await db.insert(schema.storageLocations).values([
-        { tenantId: tenant.id, parentId: cupboard.id, name: "Shelf 1", levelLabel: "Shelf", sortOrder: 1 },
-        { tenantId: tenant.id, parentId: cupboard.id, name: "Shelf 2", levelLabel: "Shelf", sortOrder: 2 },
+        { tenantId: tenant.id, parentId: cupboard1.id, name: "Shelf 1 (GST)", levelLabel: "Shelf", sortOrder: 1 },
+        { tenantId: tenant.id, parentId: cupboard1.id, name: "Shelf 2 (Income Tax)", levelLabel: "Shelf", sortOrder: 2 },
+        { tenantId: tenant.id, parentId: cupboard1.id, name: "Shelf 3 (Tax Audit)", levelLabel: "Shelf", sortOrder: 3 },
+        { tenantId: tenant.id, parentId: cupboard1.id, name: "Shelf 4 (Trust Audit)", levelLabel: "Shelf", sortOrder: 4 },
     ]);
 
     console.log("✅ Sample storage locations created");

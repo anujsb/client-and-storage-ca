@@ -10,6 +10,7 @@ export const clientSchema = z.object({
   email: z.string().email("Invalid email address").optional().nullable(),
   address: z.string().max(500).optional().nullable(),
   notes: z.string().max(1000).optional().nullable(),
+  parentLocationId: z.string().optional().nullable(),
 });
 
 export const updateClientSchema = clientSchema.partial();

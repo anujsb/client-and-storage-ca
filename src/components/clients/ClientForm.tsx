@@ -14,7 +14,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Client } from "@/types/client";
 import { FilingTypeBadge } from "@/components/filings/FilingTypeBadge";
-import { Check } from "lucide-react";
+import { Check, FolderPlus } from "lucide-react";
+import { LocationPicker } from "@/components/storage/LocationPicker";
 
 // ── Validation ────────────────────────────────────────────────────────────────
 
@@ -25,6 +26,7 @@ const clientSchema = z.object({
     email: z.string().email("Invalid email").optional().or(z.literal("")),
     address: z.string().optional(),
     notes: z.string().optional(),
+    parentLocationId: z.string().optional().nullable(),
 });
 
 type ClientFormValues = z.infer<typeof clientSchema>;
@@ -72,6 +74,7 @@ export function ClientForm({ initialData }: ClientFormProps) {
             email: initialData?.email || "",
             address: initialData?.address || "",
             notes: initialData?.notes || "",
+            parentLocationId: null,
         },
     });
 
@@ -214,6 +217,34 @@ export function ClientForm({ initialData }: ClientFormProps) {
                     </FormItem>
                 )} />
 
+                {(!initialData || !initialData.defaultLocationId) && (
+                    <div className="p-5 rounded-2xl border border-brand-100 bg-brand-50/50 space-y-4">
+                        <div className="flex items-center gap-2 text-brand-700">
+                            <FolderPlus className="w-5 h-5" />
+                            <div>
+                                <h4 className="text-[14px] font-bold">Physical Storage Folder</h4>
+                                <p className="text-[12px] text-brand-600/80">
+                                    {initialData 
+                                        ? "This client doesn't have a default folder yet. Select a parent location to create one." 
+                                        : "Select a parent location to automatically create a storage folder for this client."}
+                                </p>
+                            </div>
+                        </div>
+                        <FormField control={form.control} name="parentLocationId" render={({ field }) => (
+                            <FormItem>
+                                <FormControl>
+                                    <LocationPicker
+                                        selectedLocationId={field.value}
+                                        onSelectLocation={(id) => field.onChange(id)}
+                                        triggerText={field.value ? "Location Selected" : "Select Parent Location (e.g. Main Cupboard > Shelf 1)"}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+                    </div>
+                )}
+
                 {/* Filing Types */}
                 <div className="space-y-4">
                     <div>
@@ -247,16 +278,14 @@ export function ClientForm({ initialData }: ClientFormProps) {
                                                     key={ft.id}
                                                     type="button"
                                                     onClick={() => toggleFiling(ft.id)}
-                                                    className={`group flex items-center gap-2 rounded-xl border px-3 py-2 text-[13px] font-semibold transition-all ${
-                                                        selected
+                                                    className={`group flex items-center gap-2 rounded-xl border px-3 py-2 text-[13px] font-semibold transition-all ${selected
                                                             ? "bg-white border-brand-500 ring-1 ring-brand-500 shadow-sm text-text-dark"
                                                             : "bg-white text-text-muted border-border-base hover:border-brand-300 hover:text-text-dark shadow-sm"
-                                                    }`}
+                                                        }`}
                                                     title={ft.name}
                                                 >
-                                                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
-                                                        selected ? "bg-brand-600 border-brand-600" : "bg-white border-border-base"
-                                                    }`}>
+                                                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors ${selected ? "bg-brand-600 border-brand-600" : "bg-white border-border-base"
+                                                        }`}>
                                                         {selected && <Check className="w-2.5 h-2.5 text-white" />}
                                                     </div>
                                                     <FilingTypeBadge
@@ -266,8 +295,8 @@ export function ClientForm({ initialData }: ClientFormProps) {
                                                     />
                                                     <span className="hidden sm:inline text-[11px] text-text-muted max-w-[120px] truncate ml-1">
                                                         {ft.frequency === "monthly" ? "Monthly" :
-                                                         ft.frequency === "quarterly" ? "Quarterly" :
-                                                         ft.frequency === "annually" ? "Annual" : ""}
+                                                            ft.frequency === "quarterly" ? "Quarterly" :
+                                                                ft.frequency === "annually" ? "Annual" : ""}
                                                     </span>
                                                 </button>
                                             );
