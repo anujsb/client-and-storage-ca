@@ -9,7 +9,10 @@ const documentService = new DocumentService();
 export async function GET(request: NextRequest) {
     try {
         const tenantId = await getTenantId();
-        const documents = await documentService.list(tenantId);
+        const { searchParams } = new URL(request.url);
+        const clientId = searchParams.get("clientId") || undefined;
+
+        const documents = await documentService.list(tenantId, clientId);
         return NextResponse.json(documents);
     } catch (error) {
         if (error instanceof Error && error.message === "Unauthorized") {

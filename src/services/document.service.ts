@@ -4,7 +4,12 @@ import { eq, and, desc, count } from "drizzle-orm";
 import { CreateDocumentInput, UpdateDocumentInput } from "@/lib/validations/document";
 
 export class DocumentService {
-    async list(tenantId: string) {
+    async list(tenantId: string, clientId?: string) {
+        const conditions = [eq(documents.tenantId, tenantId)];
+        if (clientId) {
+            conditions.push(eq(documents.clientId, clientId));
+        }
+
         return await db
             .select({
                 id: documents.id,
@@ -41,7 +46,7 @@ export class DocumentService {
             .leftJoin(storageLocations, eq(documents.locationId, storageLocations.id))
             .leftJoin(fileCheckouts, and(eq(fileCheckouts.documentId, documents.id), eq(documents.status, "checked_out"))) // Simplification for now, rely on status
             .leftJoin(employees, eq(fileCheckouts.employeeId, employees.id))
-            .where(eq(documents.tenantId, tenantId))
+            .where(and(...conditions))
             .orderBy(desc(documents.createdAt));
     }
 

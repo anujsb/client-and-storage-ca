@@ -21,10 +21,16 @@ async function generateClientCode(tenantId: string): Promise<string> {
 }
 
 export const ClientService = {
-  async getClients(tenantId: string): Promise<Client[]> {
+  async getClients(tenantId: string): Promise<any[]> {
     return await db.query.clients.findMany({
       where: eq(clients.tenantId, tenantId),
       orderBy: [desc(clients.createdAt)],
+      with: {
+        filingSubscriptions: {
+          where: (subs: any, { eq }: any) => eq(subs.isActive, true),
+          with: { filingType: true },
+        },
+      },
     });
   },
 

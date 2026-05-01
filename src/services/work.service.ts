@@ -5,7 +5,12 @@ import { CreateWorkInput, UpdateWorkInput, AddSubTaskInput, UpdateSubTaskInput, 
 // No import needed for crypto.randomUUID in Next.js/Node 16+
 
 export class WorkService {
-    async list(tenantId: string) {
+    async list(tenantId: string, clientId?: string) {
+        const conditions = [eq(works.tenantId, tenantId)];
+        if (clientId) {
+            conditions.push(eq(works.clientId, clientId));
+        }
+
         return await db
             .select({
                 id: works.id,
@@ -30,7 +35,7 @@ export class WorkService {
             .from(works)
             .innerJoin(clients, eq(works.clientId, clients.id))
             .leftJoin(employees, eq(works.employeeId, employees.id))
-            .where(eq(works.tenantId, tenantId))
+            .where(and(...conditions))
             .orderBy(desc(works.createdAt));
     }
 

@@ -35,6 +35,29 @@ export const filingTypeEnum = pgEnum("filing_type", [
     "custom",
 ]);
 
+export const filingCategoryEnum = pgEnum("filing_category", [
+    "gst",
+    "income_tax",
+    "tds",
+    "audit",
+    "other",
+]);
+
+export const filingFrequencyEnum = pgEnum("filing_frequency", [
+    "monthly",
+    "quarterly",
+    "annually",
+    "on_demand",
+]);
+
+export const filingRecordStatusEnum = pgEnum("filing_record_status", [
+    "pending",
+    "in_progress",
+    "filed",
+    "late_filed",
+    "not_applicable",
+]);
+
 export const paymentModeEnum = pgEnum("payment_mode", [
     "cash",
     "bank_transfer",
@@ -175,6 +198,68 @@ export const fileCheckouts = pgTable("file_checkouts", {
     checkedInAt: timestamp("checked_in_at"), // null = currently checked out
 });
 
+// ─── Filing Types ─────────────────────────────────────────────────────────────
+// Master list of CA filing types. null tenantId = system-wide defaults.
+
+export const filingTypes = pgTable("filing_types", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tenantId: uuid("tenant_id").references(() => tenants.id, { onDelete: "cascade" }), // null = system default
+    code: text("code").notNull(),           // e.g. "GSTR-1", "ITR", "ETDS-26Q"
+    name: text("name").notNull(),           // e.g. "GSTR-1 – Outward Supplies (Monthly)"
+    category: filingCategoryEnum("category").notNull().default("other"),
+    frequency: filingFrequencyEnum("frequency").notNull().default("monthly"),
+    dueDay: integer("due_day"),             // Day of month (e.g. 11 for GSTR-1)
+    dueMonthOffset: integer("due_month_offset").default(1), // 1 = following month
+    requiresAckNo: boolean("requires_ack_no").notNull().default(true),
+    description: text("description"),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// ─── Client Filing Subscriptions ─────────────────────────────────────────────
+// Which filing types does each client need?
+
+export const clientFilingSubscriptions = pgTable("client_filing_subscriptions", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tenantId: uuid("tenant_id")
+        .notNull()
+        .references(() => tenants.id, { onDelete: "cascade" }),
+    clientId: uuid("client_id")
+        .notNull()
+        .references(() => clients.id, { onDelete: "cascade" }),
+    filingTypeId: uuid("filing_type_id")
+        .notNull()
+        .references(() => filingTypes.id, { onDelete: "cascade" }),
+    isActive: boolean("is_active").notNull().default(true),
+    notes: text("notes"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// ─── Filing Records ───────────────────────────────────────────────────────────
+// One row per client × filing type × period. The compliance tracker.
+
+export const filingRecords = pgTable("filing_records", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tenantId: uuid("tenant_id")
+        .notNull()
+        .references(() => tenants.id, { onDelete: "cascade" }),
+    clientId: uuid("client_id")
+        .notNull()
+        .references(() => clients.id, { onDelete: "cascade" }),
+    filingTypeId: uuid("filing_type_id")
+        .notNull()
+        .references(() => filingTypes.id, { onDelete: "cascade" }),
+    periodLabel: text("period_label").notNull(),    // "Apr 2025", "Q1 FY2025-26", "FY 2024-25"
+    periodStart: timestamp("period_start").notNull(),
+    periodEnd: timestamp("period_end").notNull(),
+    dueDate: timestamp("due_date").notNull(),
+    status: filingRecordStatusEnum("status").notNull().default("pending"),
+    filedDate: timestamp("filed_date"),
+    acknowledgmentNo: text("acknowledgment_no"),
+    notes: text("notes"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // ─── Works ────────────────────────────────────────────────────────────────────
 
 export const works = pgTable("works", {
@@ -186,6 +271,9 @@ export const works = pgTable("works", {
         .notNull()
         .references(() => clients.id, { onDelete: "cascade" }),
     employeeId: uuid("employee_id").references(() => employees.id, {
+        onDelete: "set null",
+    }),
+    filingRecordId: uuid("filing_record_id").references(() => filingRecords.id, {
         onDelete: "set null",
     }),
     title: text("title").notNull(),
@@ -262,6 +350,9 @@ export const tenantsRelations = relations(tenants, ({ many }) => ({
     works: many(works),
     payments: many(payments),
     notifications: many(notifications),
+    filingTypes: many(filingTypes),
+    clientFilingSubscriptions: many(clientFilingSubscriptions),
+    filingRecords: many(filingRecords),
 }));
 
 export const usersRelations = relations(users, ({ one }) => ({
@@ -279,6 +370,27 @@ export const clientsRelations = relations(clients, ({ one, many }) => ({
     documents: many(documents),
     works: many(works),
     payments: many(payments),
+    filingSubscriptions: many(clientFilingSubscriptions),
+    filingRecords: many(filingRecords),
+}));
+
+export const filingTypesRelations = relations(filingTypes, ({ one, many }) => ({
+    tenant: one(tenants, { fields: [filingTypes.tenantId], references: [tenants.id] }),
+    subscriptions: many(clientFilingSubscriptions),
+    filingRecords: many(filingRecords),
+}));
+
+export const clientFilingSubscriptionsRelations = relations(clientFilingSubscriptions, ({ one }) => ({
+    tenant: one(tenants, { fields: [clientFilingSubscriptions.tenantId], references: [tenants.id] }),
+    client: one(clients, { fields: [clientFilingSubscriptions.clientId], references: [clients.id] }),
+    filingType: one(filingTypes, { fields: [clientFilingSubscriptions.filingTypeId], references: [filingTypes.id] }),
+}));
+
+export const filingRecordsRelations = relations(filingRecords, ({ one, many }) => ({
+    tenant: one(tenants, { fields: [filingRecords.tenantId], references: [tenants.id] }),
+    client: one(clients, { fields: [filingRecords.clientId], references: [clients.id] }),
+    filingType: one(filingTypes, { fields: [filingRecords.filingTypeId], references: [filingTypes.id] }),
+    works: many(works),
 }));
 
 export const storageLocationsRelations = relations(storageLocations, ({ one, many }) => ({
@@ -311,6 +423,7 @@ export const worksRelations = relations(works, ({ one, many }) => ({
     tenant: one(tenants, { fields: [works.tenantId], references: [tenants.id] }),
     client: one(clients, { fields: [works.clientId], references: [clients.id] }),
     employee: one(employees, { fields: [works.employeeId], references: [employees.id] }),
+    filingRecord: one(filingRecords, { fields: [works.filingRecordId], references: [filingRecords.id] }),
     workDocuments: many(workDocuments),
 }));
 

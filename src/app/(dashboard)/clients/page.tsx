@@ -27,15 +27,7 @@ export default async function ClientsPage() {
         }
       />
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <SearchBar placeholder="Search by name, PAN or client code..." />
-        <div className="flex items-center gap-2">
-          <p className="text-[13px] text-text-muted font-medium mr-2">
-            Showing <span className="text-text-dark font-bold">{clients.length}</span> clients
-          </p>
-        </div>
-      </div>
-      
+
       <ClientTable clients={clients} />
     </div>
   );

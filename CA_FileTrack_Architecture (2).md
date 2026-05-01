@@ -41,6 +41,61 @@
 - **T-07** `middleware.ts` — protects all routes except `/login` and `/api/auth/*`; redirects logged-in users away from `/login`
 - **T-08** `scripts/seed.ts` — creates demo tenant, owner user, 2 employees, storage locations, 1 sample client
 
+### Session 5 — CA Filing System (Phase 13)
+
+**Core architecture decision**: Two separate but linked concepts.
+- `filing_records` = compliance artifact ("GSTR-1 Apr 2025 filed on 9 May, ack: AA123456")
+- `works` = task execution ("Priya: prepare GSTR-1 for Ramesh Traders")
+- Linked via optional `works.filing_record_id` FK — works still exist independently
+
+**New DB tables added + migrated to Neon:**
+- `filing_types` — master list of 12 CA filing types with due-date rules. `tenantId = null` = system-wide defaults
+- `client_filing_subscriptions` — M2M: which filing types a client needs
+- `filing_records` — one row per client × filing type × period; tracks status, filed_date, acknowledgment_no
+- `works.filing_record_id` FK added (nullable, links task to a compliance record)
+
+**New enums added to schema:**
+- `filing_category`: gst | income_tax | tds | audit | other
+- `filing_frequency`: monthly | quarterly | annually | on_demand
+- `filing_record_status`: pending | in_progress | filed | late_filed | not_applicable
+
+**Seed data updated (`scripts/seed.ts`):**
+- 12 system filing types seeded (GSTR-1, GSTR-1-Q, GSTR-3B, GSTR-3B-Q, GSTR-7, GSTR-9, ITR, ITR-AUDIT, TAX-AUDIT, ETDS-24Q, ETDS-26Q, ETDS-27Q)
+- 2 sample clients with realistic subscriptions and filing records for FY 2024-25
+- All Indian compliance due dates researched and hardcoded correctly
+
+**New services:**
+- `src/services/filing.service.ts` — full filing service: getFilingTypes, getClientSubscriptions, setClientSubscriptions, getClientFilingRecords, getUpcomingFilings, getClientFilingStats, updateFilingRecord, generateFilingRecords
+- Period generation logic for monthly / quarterly (Indian FY quarters) / annual filings with correct eTDS quarterly deadlines
+
+**New API routes:**
+- `GET /api/filing-types` — all system + tenant filing types
+- `GET|PUT /api/clients/[clientId]/subscriptions` — manage client filing subscriptions
+- `GET /api/clients/[clientId]/filings` — all filing records for a client
+- `POST /api/clients/[clientId]/filings/generate` — auto-generate records for a date range
+- `PATCH /api/filing-records/[recordId]` — mark filed, enter ack number, update status
+- `GET /api/filing-records/upcoming` — upcoming/overdue records across all clients (used by Works page)
+
+**New UI components (`src/components/filings/`):**
+- `FilingTypeBadge.tsx` — compact badge, color-coded by category (GST=emerald, Tax=blue, TDS=amber, Audit=purple)
+- `FilingStatusBadge.tsx` — dot + label badge for all 5 statuses
+- `FilingRecordTable.tsx` — compliance tracker with category filters, expandable rows, inline mark-as-filed, ack number entry
+- `UpcomingFilingsPanel.tsx` — collapsible panel on Works page showing overdue/due-this-week/later filings across all clients
+
+**Modified components:**
+- `ClientForm.tsx` — full rewrite: filing type multi-select grouped by category; on create: saves subscriptions + auto-generates filing records
+- `ClientTable.tsx` — added Filings column showing FilingTypeBadge chips (up to 4, +N overflow); `ClientService.getClients` now includes `filingSubscriptions` with Drizzle `with:`
+- `ClientDetailTabs.tsx` (new) — `ClientOverviewTab` + `ClientFilingsTab` client components
+
+**Redesigned client detail page (`/clients/[clientId]/page.tsx`):**
+- 5 tabs: Overview | Filings ⭐ | Works | Documents | Payments (all with icons)
+- Overview tab: profile card + filing type badges + 4 stat cards (Total/Overdue/InProgress/Filed) + upcoming filings mini-list + notes
+- Filings tab: FilingRecordTable with stats header + Generate Filings button
+- Works/Documents/Payments tabs: cards with deep-link buttons to global views
+
+**Works page (`/works/page.tsx`):**
+- `UpcomingFilingsPanel` added above the task board — shows overdue + due-this-week + due-later-this-month sections, each with Go to Client + Create Work buttons
+
 ---
 
 ## Tech Stack
@@ -97,7 +152,7 @@
 
 ```
 tenants
-  id (uuid), name, slug, plan, created_at
+  id (uuid), name, slug, gstin, email, phone, address, preferences (jsonb), created_at
 
 users
   id (uuid), tenant_id, name, email, password_hash, role (owner|admin), created_at
@@ -109,20 +164,48 @@ employees
 clients
   id (uuid), tenant_id, client_code (C-0001), pan, name, phone, email, address, notes, created_at
 
-documents
-  id (uuid), tenant_id, client_id, doc_code (C-0001-D-01), doc_type,
-  description, status, location_id (nullable), created_at
+--- FILING SYSTEM (Session 5) ---
+
+filing_types                                           ← NEW
+  id (uuid), tenant_id (null = system default), code, name,
+  category (gst|income_tax|tds|audit|other),
+  frequency (monthly|quarterly|annually|on_demand),
+  due_day (int), due_month_offset (int),
+  requires_ack_no (bool), description, is_active, created_at
+
+client_filing_subscriptions                            ← NEW
+  id (uuid), tenant_id, client_id → clients,
+  filing_type_id → filing_types, is_active, notes, created_at
+
+filing_records                                         ← NEW
+  id (uuid), tenant_id, client_id → clients,
+  filing_type_id → filing_types,
+  period_label ("Apr 2025" / "Q1 FY25-26" / "FY 2024-25"),
+  period_start (date), period_end (date), due_date (date),
+  status (pending|in_progress|filed|late_filed|not_applicable),
+  filed_date (nullable), acknowledgment_no (nullable),
+  notes, created_at
+
+---------------------------------
 
 storage_locations
   id (uuid), tenant_id, parent_id (self-ref nullable), name, level_label, sort_order, created_at
+
+documents
+  id (uuid), tenant_id, client_id, doc_code (C-0001-D-01), doc_type,
+  year_period, pages_volume, description, tags (jsonb),
+  status, location_id (nullable), created_at
 
 file_checkouts
   id (uuid), tenant_id, document_id, employee_id, checked_out_at,
   checked_in_at (nullable), purpose, work_id (nullable)
 
 works
-  id (uuid), tenant_id, client_id, employee_id, filing_type,
-  custom_filing_type (nullable), status, description,
+  id (uuid), tenant_id, client_id, employee_id,
+  filing_record_id → filing_records (nullable),   ← ADDED
+  title, filing_type (enum), custom_filing_type,
+  status, priority, description, tags (jsonb),
+  sub_tasks (jsonb), activity_log (jsonb), time_tracking (jsonb),
   started_at, due_date, completed_at, created_at
 
 work_documents
@@ -581,6 +664,43 @@ Each task is one focused, completable unit. Check off as done.
 - [ ] **T-72** Skeleton loading states on all tables
 - [ ] **T-73** Global search — by PAN, client name, client code, doc code
 - [ ] **T-74** Mobile responsiveness pass
+
+### Phase 13 — CA Filing & Compliance System ✅ COMPLETE
+- [x] **T-75** Add `filing_types`, `client_filing_subscriptions`, `filing_records` tables to schema + `works.filing_record_id` FK
+- [x] **T-76** Run `drizzle-kit push` — all new tables live in Neon
+- [x] **T-77** Update `scripts/seed.ts` — 12 system filing types + 2 sample clients with subscriptions + realistic filing records
+- [x] **T-78** Build `src/services/filing.service.ts` — full service layer (types, subscriptions, records, generation, stats, upcoming)
+- [x] **T-79** Build `GET /api/filing-types` route
+- [x] **T-80** Build `GET|PUT /api/clients/[clientId]/subscriptions` route
+- [x] **T-81** Build `GET /api/clients/[clientId]/filings` route
+- [x] **T-82** Build `POST /api/clients/[clientId]/filings/generate` route
+- [x] **T-83** Build `PATCH /api/filing-records/[recordId]` route
+- [x] **T-84** Build `GET /api/filing-records/upcoming` route
+- [x] **T-85** Build `FilingTypeBadge.tsx` — category-colored compact badge
+- [x] **T-86** Build `FilingStatusBadge.tsx` — dot+label for all 5 statuses
+- [x] **T-87** Build `FilingRecordTable.tsx` — full compliance tracker with filters, expandable rows, inline mark-as-filed
+- [x] **T-88** Build `UpcomingFilingsPanel.tsx` — collapsible panel: overdue / due-this-week / later sections
+- [x] **T-89** Rewrite `ClientForm.tsx` — filing type multi-select grouped by category + auto-generate on create
+- [x] **T-90** Update `ClientTable.tsx` + `ClientService.getClients` — filing badges column
+- [x] **T-91** Build `ClientDetailTabs.tsx` — `ClientOverviewTab` + `ClientFilingsTab` client components
+- [x] **T-92** Redesign `/clients/[clientId]/page.tsx` — 5-tab layout (Overview, Filings, Works, Documents, Payments)
+- [x] **T-93** Update `/works/page.tsx` — `UpcomingFilingsPanel` above the task board
+
+### Filing Type Reference (System Defaults)
+| Code | Name | Category | Frequency | Due Rule |
+|---|---|---|---|---|
+| `GSTR-1` | Outward Supplies (Monthly) | GST | Monthly | 11th of following month |
+| `GSTR-1-Q` | Outward Supplies (Quarterly/QRMP) | GST | Quarterly | 13th of following month |
+| `GSTR-3B` | Summary Return (Monthly) | GST | Monthly | 20th of following month |
+| `GSTR-3B-Q` | Summary Return (Quarterly/QRMP) | GST | Quarterly | 22nd of following month |
+| `GSTR-7` | TDS Under GST | GST | Monthly | 10th of following month |
+| `GSTR-9` | Annual Return | GST | Annually | 31 Dec of following FY |
+| `ITR` | Income Tax Return (Non-Audit) | Income Tax | Annually | 31 Jul |
+| `ITR-AUDIT` | Income Tax Return (Audit) | Income Tax | Annually | 31 Oct |
+| `TAX-AUDIT` | Tax Audit Report (Form 3CD) | Audit | Annually | 30 Sep |
+| `ETDS-24Q` | Salary TDS (Form 24Q) | TDS | Quarterly | Q1:31Jul, Q2:31Oct, Q3:31Jan, Q4:31May |
+| `ETDS-26Q` | Non-Salary TDS (Form 26Q) | TDS | Quarterly | same as 24Q |
+| `ETDS-27Q` | NRI TDS (Form 27Q) | TDS | Quarterly | same as 24Q |
 
 ---
 
