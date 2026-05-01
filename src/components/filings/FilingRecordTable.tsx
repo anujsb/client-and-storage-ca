@@ -335,19 +335,17 @@ export function FilingRecordTable({ records, clientId, onRefresh }: FilingRecord
                                                         onChange={e => setEditFiledDate(p => ({ ...p, [record.id]: e.target.value }))}
                                                     />
                                                 </div>
-                                                {record.filingType.requiresAckNo && (
-                                                    <div className="sm:col-span-2">
-                                                        <label className="block text-[11px] font-bold text-text-muted uppercase tracking-wider mb-1.5">
-                                                            Acknowledgment Number
-                                                        </label>
-                                                        <Input
-                                                            placeholder="e.g. AA01234567890"
-                                                            className="h-9 text-sm rounded-xl font-mono"
-                                                            value={editAck[record.id] || ""}
-                                                            onChange={e => setEditAck(p => ({ ...p, [record.id]: e.target.value }))}
-                                                        />
-                                                    </div>
-                                                )}
+                                                <div className="sm:col-span-2">
+                                                    <label className="block text-[11px] font-bold text-text-muted uppercase tracking-wider mb-1.5">
+                                                        Acknowledgment Number
+                                                    </label>
+                                                    <Input
+                                                        placeholder="e.g. AA01234567890"
+                                                        className="h-9 text-sm rounded-xl font-mono"
+                                                        value={editAck[record.id] || ""}
+                                                        onChange={e => setEditAck(p => ({ ...p, [record.id]: e.target.value }))}
+                                                    />
+                                                </div>
                                             </div>
                                         )}
 
