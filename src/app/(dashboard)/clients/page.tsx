@@ -15,8 +15,8 @@ export default async function ClientsPage() {
 
   return (
     <div className="space-y-8">
-      <PageHeader 
-        title="Clients" 
+      <PageHeader
+        title="Clients"
         description="Manage your firm's clients and their basic information."
         action={
           <Link href="/clients/new">

@@ -5,7 +5,7 @@ import {
     filingRecords,
     clients,
 } from "@/lib/db/schema";
-import { eq, and, lte, or, inArray, desc, asc, gte } from "drizzle-orm";
+import { eq, and, lte, or, inArray, desc, asc } from "drizzle-orm";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -266,19 +266,14 @@ export const FilingService = {
         const cutoff = new Date();
         cutoff.setDate(cutoff.getDate() + daysAhead);
 
-        const pastCutoff = new Date();
-        pastCutoff.setMonth(pastCutoff.getMonth() - 3); // Show history up to 3 months ago
-
         const records = await db.query.filingRecords.findMany({
             where: and(
                 eq(filingRecords.tenantId, tenantId),
                 lte(filingRecords.dueDate, cutoff),
                 or(
-                    // If it's pending/in_progress, show it even if it's older than 3 months (overdue)
+                    // Only show incomplete filings — pending or in_progress
                     eq(filingRecords.status, "pending"),
                     eq(filingRecords.status, "in_progress"),
-                    // If it's filed, only show if it was due in the last 3 months
-                    gte(filingRecords.dueDate, pastCutoff)
                 )
             ),
             with: {

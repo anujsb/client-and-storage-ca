@@ -38,8 +38,12 @@ export function NotificationBell() {
 
     useEffect(() => {
         fetchNotifications();
-        // Poll every 30 seconds
-        const interval = setInterval(fetchNotifications, 30000);
+        // Poll every 60 seconds, but pause when tab is hidden
+        const interval = setInterval(() => {
+            if (!document.hidden) {
+                fetchNotifications();
+            }
+        }, 60000);
         return () => clearInterval(interval);
     }, [fetchNotifications]);
 
