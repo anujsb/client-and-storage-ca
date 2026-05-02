@@ -50,6 +50,7 @@ const navItems = [
     { label: "Payments & Billing", href: "/payments", icon: CreditCard },
     { label: "Employee Directory", href: "/employees", icon: UserCheck },
     { label: "Settings", href: "/settings", icon: Settings },
+    { label: "Import Data", href: "/import", icon: Database },
 ];
 
 interface AppSidebarProps {

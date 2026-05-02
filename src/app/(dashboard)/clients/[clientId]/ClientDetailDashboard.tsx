@@ -10,7 +10,8 @@ import { DocumentStatusBadge } from "@/components/documents/DocumentStatusBadge"
 import { 
     ArrowLeft, Pencil, FileText, AlertTriangle, 
     CheckCircle2, Clock, MapPin, Phone, Mail, 
-    RefreshCw, Calendar, File, ClipboardList, Folder
+    RefreshCw, Calendar, File, ClipboardList, Folder,
+    Trash2
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -34,6 +35,7 @@ export function ClientDetailDashboard({ clientId }: ClientDetailDashboardProps) 
     const [isLoadingWorks, setIsLoadingWorks] = useState(true);
     const [isLoadingDocs, setIsLoadingDocs] = useState(true);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     // Fetch Client Base Data
     useEffect(() => {
@@ -123,6 +125,27 @@ export function ClientDetailDashboard({ clientId }: ClientDetailDashboardProps) 
         }
     };
 
+    const handleDelete = async () => {
+        if (!confirm("Are you sure you want to delete this client? This action cannot be undone.")) return;
+        setIsDeleting(true);
+        try {
+            const res = await fetch(`/api/clients/${clientId}`, {
+                method: "DELETE",
+            });
+            if (res.ok) {
+                toast.success("Client deleted successfully");
+                router.push("/clients");
+                router.refresh();
+            } else {
+                const data = await res.json();
+                throw new Error(data.error || "Failed to delete");
+            }
+        } catch (e: any) {
+            toast.error(e.message || "Failed to delete client");
+            setIsDeleting(false);
+        }
+    };
+
     if (isLoadingClient) {
         return <div className="p-8 text-center text-text-muted">Loading client details...</div>;
     }
@@ -171,6 +194,15 @@ export function ClientDetailDashboard({ clientId }: ClientDetailDashboardProps) 
                             Edit Profile
                         </Button>
                     </Link>
+                    <Button 
+                        variant="outline" 
+                        className="rounded-xl h-9 px-4 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 shadow-sm"
+                        onClick={handleDelete}
+                        disabled={isDeleting}
+                    >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        {isDeleting ? "Deleting..." : "Delete"}
+                    </Button>
                 </div>
             </div>
 
