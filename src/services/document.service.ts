@@ -128,6 +128,7 @@ export class DocumentService {
                 tags: input.tags,
                 customFields: input.customFields,
                 locationId: input.locationId,
+                ...(input.createdAt ? { createdAt: new Date(input.createdAt) } : {}),
             })
             .returning();
 
@@ -135,9 +136,14 @@ export class DocumentService {
     }
 
     async update(id: string, tenantId: string, input: UpdateDocumentInput) {
+        const updateData: any = { ...input };
+        if (input.createdAt) {
+            updateData.createdAt = new Date(input.createdAt);
+        }
+        
         const [updatedDoc] = await db
             .update(documents)
-            .set(input)
+            .set(updateData)
             .where(and(eq(documents.id, id), eq(documents.tenantId, tenantId)))
             .returning();
 

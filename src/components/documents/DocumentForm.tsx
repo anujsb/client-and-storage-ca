@@ -17,21 +17,26 @@ import { LocationPicker } from "@/components/storage/LocationPicker";
 interface DocumentFormProps {
     onSuccess: () => void;
     defaultClientId?: string;
+    document?: any;
+    trigger?: React.ReactNode;
 }
 
-export function DocumentForm({ onSuccess, defaultClientId }: DocumentFormProps) {
+export function DocumentForm({ onSuccess, defaultClientId, document, trigger }: DocumentFormProps) {
     const [open, setOpen] = useState(false);
     const [clients, setClients] = useState<{ id: string; name: string; defaultLocationId?: string | null }[]>([]);
+
+    const isEdit = !!document;
 
     const form = useForm<CreateDocumentInput>({
         resolver: zodResolver(CreateDocumentSchema as any),
         defaultValues: {
-            clientId: defaultClientId || "",
-            docType: "",
-            description: "",
-            yearPeriod: "",
-            pagesVolume: "",
-            locationId: null,
+            clientId: document?.clientId || defaultClientId || "",
+            docType: document?.docType || "",
+            description: document?.description || "",
+            yearPeriod: document?.yearPeriod || "",
+            pagesVolume: document?.pagesVolume || "",
+            locationId: document?.locationId || null,
+            createdAt: document?.createdAt ? new Date(document.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
         },
     });
 
@@ -41,7 +46,7 @@ export function DocumentForm({ onSuccess, defaultClientId }: DocumentFormProps) 
                 .then((res) => res.json())
                 .then((data) => {
                     setClients(data);
-                    if (defaultClientId && !form.getValues("clientId")) {
+                    if (!isEdit && defaultClientId && !form.getValues("clientId")) {
                         form.setValue("clientId", defaultClientId);
                         // Optional: auto-select default location if possible
                         const selectedClient = data.find((c: any) => c.id === defaultClientId);
@@ -51,23 +56,38 @@ export function DocumentForm({ onSuccess, defaultClientId }: DocumentFormProps) 
                     }
                 })
                 .catch(() => toast.error("Failed to load clients"));
+                
+            if (isEdit && document) {
+                form.reset({
+                    clientId: document.clientId || "",
+                    docType: document.docType || "",
+                    description: document.description || "",
+                    yearPeriod: document.yearPeriod || "",
+                    pagesVolume: document.pagesVolume || "",
+                    locationId: document.locationId || null,
+                    createdAt: document.createdAt ? new Date(document.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                });
+            }
         }
-    }, [open, defaultClientId, form]);
+    }, [open, defaultClientId, form, isEdit, document]);
 
     const onSubmit = async (data: CreateDocumentInput) => {
         try {
-            const res = await fetch("/api/documents", {
-                method: "POST",
+            const url = isEdit ? `/api/documents/${document.id}` : "/api/documents";
+            const method = isEdit ? "PATCH" : "POST";
+            
+            const res = await fetch(url, {
+                method,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data),
             });
 
             if (!res.ok) {
                 const errorData = await res.json();
-                throw new Error(errorData.error || "Failed to create document");
+                throw new Error(errorData.error || `Failed to ${isEdit ? 'update' : 'create'} document`);
             }
 
-            toast.success("Document added to registry");
+            toast.success(isEdit ? "Document updated successfully" : "Document added to registry");
             setOpen(false);
             form.reset();
             onSuccess();
@@ -79,16 +99,18 @@ export function DocumentForm({ onSuccess, defaultClientId }: DocumentFormProps) 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-brand-600 hover:bg-brand-700 text-white rounded-xl h-9 px-4">
-                    <Plus className="w-4 h-4 mr-2" />
-                    New Document
-                </Button>
+                {trigger || (
+                    <Button className="bg-brand-600 hover:bg-brand-700 text-white rounded-xl h-9 px-4">
+                        <Plus className="w-4 h-4 mr-2" />
+                        New Document
+                    </Button>
+                )}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px] rounded-[24px]">
                 <DialogHeader>
-                    <DialogTitle>Add to Registry</DialogTitle>
+                    <DialogTitle>{isEdit ? "Edit Document Details" : "Add to Registry"}</DialogTitle>
                     <DialogDescription>
-                        Register a new document and assign it a physical storage location.
+                        {isEdit ? "Update document details and location." : "Register a new document and assign it a physical storage location."}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -109,7 +131,7 @@ export function DocumentForm({ onSuccess, defaultClientId }: DocumentFormProps) 
                                             }
                                         }} 
                                         value={field.value}
-                                        disabled={!!defaultClientId}
+                                        disabled={!!defaultClientId || isEdit}
                                     >
                                         <FormControl>
                                             <SelectTrigger className="rounded-xl">
@@ -158,19 +180,34 @@ export function DocumentForm({ onSuccess, defaultClientId }: DocumentFormProps) 
                             />
                         </div>
 
-                        <FormField
-                            control={form.control}
-                            name="description"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Description / Name</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="e.g. Finalized Audit Report" className="rounded-xl" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Description / Name</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="e.g. Finalized Audit Report" className="rounded-xl" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="createdAt"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Date Added</FormLabel>
+                                        <FormControl>
+                                            <Input type="date" className="rounded-xl" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
 
                         <FormField
                             control={form.control}

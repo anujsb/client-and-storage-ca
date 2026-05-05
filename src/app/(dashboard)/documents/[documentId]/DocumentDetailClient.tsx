@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { DocumentStatusBadge } from "@/components/documents/DocumentStatusBadge";
+import { DocumentForm } from "@/components/documents/DocumentForm";
 
 import { 
     ArrowLeft, Printer, Pencil, LogOut, LogIn, 
@@ -76,10 +77,16 @@ export function DocumentDetailClient({ documentId }: { documentId: string }) {
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" className="rounded-xl h-9 px-4 text-text-dark border-border-base shadow-sm">
-                        <Pencil className="w-4 h-4 mr-2" />
-                        Edit Details
-                    </Button>
+                    <DocumentForm 
+                        document={doc} 
+                        onSuccess={handleRefresh} 
+                        trigger={
+                            <Button variant="outline" className="rounded-xl h-9 px-4 text-text-dark border-border-base shadow-sm">
+                                <Pencil className="w-4 h-4 mr-2" />
+                                Edit Details
+                            </Button>
+                        } 
+                    />
                     <Button variant="outline" className="rounded-xl h-9 px-4 text-text-dark border-border-base shadow-sm">
                         <Printer className="w-4 h-4 mr-2" />
                         Print Label

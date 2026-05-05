@@ -9,6 +9,7 @@ export const CreateDocumentSchema = z.object({
     tags: z.array(z.string()).optional(),
     customFields: z.record(z.string(), z.string()).optional(),
     locationId: z.string().uuid().nullable().optional(),
+    createdAt: z.string().optional(),
 });
 
 export type CreateDocumentInput = z.infer<typeof CreateDocumentSchema>;
@@ -22,6 +23,7 @@ export const UpdateDocumentSchema = z.object({
     customFields: z.record(z.string(), z.string()).optional(),
     locationId: z.string().uuid().nullable().optional(),
     status: z.enum(["in_office", "checked_out", "missing", "returned_to_client"]).optional(),
+    createdAt: z.string().optional(),
 });
 
 export const CheckoutDocumentSchema = z.object({
