@@ -46,11 +46,10 @@ export function DocumentForm({ onSuccess, defaultClientId, document, trigger }: 
                 .then((res) => res.json())
                 .then((data) => {
                     setClients(data);
-                    if (!isEdit && defaultClientId && !form.getValues("clientId")) {
-                        form.setValue("clientId", defaultClientId);
+                    if (!isEdit && defaultClientId) {
                         // Optional: auto-select default location if possible
                         const selectedClient = data.find((c: any) => c.id === defaultClientId);
-                        if (selectedClient?.defaultLocationId) {
+                        if (selectedClient?.defaultLocationId && !form.getValues("locationId")) {
                             form.setValue("locationId", selectedClient.defaultLocationId);
                         }
                     }
