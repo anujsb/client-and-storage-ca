@@ -37,7 +37,7 @@ export function PaymentForm({ open, onOpenChange, onSuccess, payment }: PaymentF
         if (open) {
             fetchClients();
             fetchFilingTypes();
-            if (payment) {
+            if (payment && payment.id) {
                 setFormData({
                     clientId: payment.client?.id || payment.clientId || "",
                     filingType: payment.filingType || "",
@@ -47,6 +47,10 @@ export function PaymentForm({ open, onOpenChange, onSuccess, payment }: PaymentF
                     dueDate: payment.dueDate ? new Date(payment.dueDate).toISOString().split('T')[0] : "",
                     paymentMode: payment.paymentMode || "none",
                     notes: payment.notes || "",
+                });
+            } else if (payment && payment.clientId) {
+                setFormData({
+                    clientId: payment.clientId, filingType: "", period: "", totalAmount: "", paidAmount: "0", dueDate: "", paymentMode: "none", notes: ""
                 });
             } else {
                 setFormData({
@@ -87,8 +91,9 @@ export function PaymentForm({ open, onOpenChange, onSuccess, payment }: PaymentF
             if (formData.paymentMode && formData.paymentMode !== "none") payload.paymentMode = formData.paymentMode;
             if (formData.notes) payload.notes = formData.notes;
 
-            const url = payment ? `/api/payments/${payment.id}` : "/api/payments";
-            const method = payment ? "PATCH" : "POST";
+            const isEdit = payment && payment.id;
+            const url = isEdit ? `/api/payments/${payment.id}` : "/api/payments";
+            const method = isEdit ? "PATCH" : "POST";
 
             const res = await fetch(url, {
                 method,
@@ -97,7 +102,7 @@ export function PaymentForm({ open, onOpenChange, onSuccess, payment }: PaymentF
             });
 
             if (res.ok) {
-                toast.success(payment ? "Payment updated" : "Payment recorded");
+                toast.success(isEdit ? "Payment updated" : "Payment recorded");
                 onOpenChange(false);
                 if (onSuccess) onSuccess();
             } else {
@@ -113,11 +118,11 @@ export function PaymentForm({ open, onOpenChange, onSuccess, payment }: PaymentF
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[500px] rounded-[24px] p-0 overflow-hidden border-border-base shadow-soft">
+            <DialogContent className="sm:max-w-[500px] rounded-[24px] p-0 overflow-hidden border-border-base shadow-soft" aria-describedby={undefined}>
                 <div className="p-6 border-b border-border-light bg-bg-main">
                     <DialogHeader>
                         <DialogTitle className="text-xl font-bold text-brand-900">
-                            {payment ? "Update Payment" : "Record New Payment"}
+                            {payment && payment.id ? "Update Payment" : "Record New Payment"}
                         </DialogTitle>
                     </DialogHeader>
                 </div>
@@ -126,7 +131,7 @@ export function PaymentForm({ open, onOpenChange, onSuccess, payment }: PaymentF
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label>Client <span className="text-red-500">*</span></Label>
-                            <Select required disabled={!!payment} value={formData.clientId || undefined} onValueChange={v => setFormData({...formData, clientId: v})}>
+                            <Select required disabled={!!(payment && payment.id)} value={formData.clientId || ""} onValueChange={v => setFormData({...formData, clientId: v})}>
                                 <SelectTrigger className="h-10 rounded-xl">
                                     <SelectValue placeholder="Select Client" />
                                 </SelectTrigger>
@@ -139,7 +144,7 @@ export function PaymentForm({ open, onOpenChange, onSuccess, payment }: PaymentF
                         </div>
                         <div className="space-y-2">
                             <Label>Filing Type <span className="text-red-500">*</span></Label>
-                            <Select required value={formData.filingType || undefined} onValueChange={v => setFormData({...formData, filingType: v})}>
+                            <Select required value={formData.filingType || ""} onValueChange={v => setFormData({...formData, filingType: v})}>
                                 <SelectTrigger className="h-10 rounded-xl">
                                     <SelectValue placeholder="Select Type" />
                                 </SelectTrigger>
@@ -177,7 +182,7 @@ export function PaymentForm({ open, onOpenChange, onSuccess, payment }: PaymentF
 
                     <div className="space-y-2">
                         <Label>Payment Mode</Label>
-                        <Select value={formData.paymentMode || undefined} onValueChange={v => setFormData({...formData, paymentMode: v})}>
+                        <Select value={formData.paymentMode || ""} onValueChange={v => setFormData({...formData, paymentMode: v})}>
                             <SelectTrigger className="h-10 rounded-xl">
                                 <SelectValue placeholder="Select mode" />
                             </SelectTrigger>
@@ -200,7 +205,7 @@ export function PaymentForm({ open, onOpenChange, onSuccess, payment }: PaymentF
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="h-10 rounded-xl px-6 border-border-base">Cancel</Button>
                         <Button type="submit" disabled={isLoading} className="h-10 rounded-xl px-6 bg-brand-600 hover:bg-brand-700 text-white shadow-sm">
                             {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                            {payment ? "Update Payment" : "Record Payment"}
+                            {payment && payment.id ? "Update Payment" : "Record Payment"}
                         </Button>
                     </div>
                 </form>

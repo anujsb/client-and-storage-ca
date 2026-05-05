@@ -43,6 +43,8 @@ interface FilingType {
 
 interface ClientFormProps {
     initialData?: Client & { subscriptionIds?: string[] };
+    onSuccess?: () => void;
+    onCancel?: () => void;
 }
 
 // ── Category display order ────────────────────────────────────────────────────
@@ -58,7 +60,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export function ClientForm({ initialData }: ClientFormProps) {
+export function ClientForm({ initialData, onSuccess, onCancel }: ClientFormProps) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingFilingTypes, setIsLoadingFilingTypes] = useState(true);
@@ -143,8 +145,12 @@ export function ClientForm({ initialData }: ClientFormProps) {
             }
 
             toast.success(initialData ? "Client updated successfully" : "Client created successfully");
-            router.push("/clients");
-            router.refresh();
+            if (onSuccess) {
+                onSuccess();
+            } else {
+                router.push("/clients");
+                router.refresh();
+            }
         } catch (error: any) {
             toast.error(error.message || "An error occurred while saving");
         } finally {
@@ -320,7 +326,10 @@ export function ClientForm({ initialData }: ClientFormProps) {
                         type="button"
                         variant="outline"
                         className="rounded-xl px-6 h-11 border-border-base text-text-muted hover:bg-bg-main"
-                        onClick={() => router.push("/clients")}
+                        onClick={() => {
+                            if (onCancel) onCancel();
+                            else router.push("/clients");
+                        }}
                         disabled={isLoading}
                     >
                         Cancel

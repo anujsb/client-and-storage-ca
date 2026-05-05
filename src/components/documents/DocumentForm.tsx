@@ -16,16 +16,17 @@ import { LocationPicker } from "@/components/storage/LocationPicker";
 
 interface DocumentFormProps {
     onSuccess: () => void;
+    defaultClientId?: string;
 }
 
-export function DocumentForm({ onSuccess }: DocumentFormProps) {
+export function DocumentForm({ onSuccess, defaultClientId }: DocumentFormProps) {
     const [open, setOpen] = useState(false);
     const [clients, setClients] = useState<{ id: string; name: string; defaultLocationId?: string | null }[]>([]);
 
     const form = useForm<CreateDocumentInput>({
         resolver: zodResolver(CreateDocumentSchema as any),
         defaultValues: {
-            clientId: "",
+            clientId: defaultClientId || "",
             docType: "",
             description: "",
             yearPeriod: "",
@@ -38,10 +39,20 @@ export function DocumentForm({ onSuccess }: DocumentFormProps) {
         if (open) {
             fetch("/api/clients")
                 .then((res) => res.json())
-                .then((data) => setClients(data))
+                .then((data) => {
+                    setClients(data);
+                    if (defaultClientId && !form.getValues("clientId")) {
+                        form.setValue("clientId", defaultClientId);
+                        // Optional: auto-select default location if possible
+                        const selectedClient = data.find((c: any) => c.id === defaultClientId);
+                        if (selectedClient?.defaultLocationId) {
+                            form.setValue("locationId", selectedClient.defaultLocationId);
+                        }
+                    }
+                })
                 .catch(() => toast.error("Failed to load clients"));
         }
-    }, [open]);
+    }, [open, defaultClientId, form]);
 
     const onSubmit = async (data: CreateDocumentInput) => {
         try {
@@ -97,7 +108,8 @@ export function DocumentForm({ onSuccess }: DocumentFormProps) {
                                                 form.setValue("locationId", selectedClient.defaultLocationId);
                                             }
                                         }} 
-                                        defaultValue={field.value}
+                                        value={field.value}
+                                        disabled={!!defaultClientId}
                                     >
                                         <FormControl>
                                             <SelectTrigger className="rounded-xl">
