@@ -8,10 +8,14 @@ import { z } from "zod";
 const paymentService = new PaymentService();
 const notificationService = new NotificationService();
 
-export async function GET() {
+export async function GET(request: NextRequest) {
     try {
         const tenantId = await getTenantId();
-        const payments = await paymentService.list(tenantId);
+        const { searchParams } = new URL(request.url);
+        const clientId = searchParams.get("clientId");
+        const payments = clientId
+            ? await paymentService.listByClient(tenantId, clientId)
+            : await paymentService.list(tenantId);
         return NextResponse.json(payments);
     } catch (error) {
         if (error instanceof Error && error.message === "UNAUTHORIZED") {

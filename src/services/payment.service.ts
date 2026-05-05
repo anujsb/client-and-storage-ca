@@ -45,6 +45,34 @@ export class PaymentService {
         }));
     }
 
+    async listByClient(tenantId: string, clientId: string) {
+        const results = await db
+            .select({
+                id: payments.id,
+                filingType: payments.filingType,
+                period: payments.period,
+                totalAmount: payments.totalAmount,
+                paidAmount: payments.paidAmount,
+                dueDate: payments.dueDate,
+                paymentMode: payments.paymentMode,
+                createdAt: payments.createdAt,
+                client: {
+                    id: clients.id,
+                    name: clients.name,
+                    clientCode: clients.clientCode,
+                }
+            })
+            .from(payments)
+            .innerJoin(clients, eq(payments.clientId, clients.id))
+            .where(and(eq(payments.tenantId, tenantId), eq(payments.clientId, clientId)))
+            .orderBy(desc(payments.createdAt));
+
+        return results.map(p => ({
+            ...p,
+            status: PaymentService.computeStatus(p.totalAmount, p.paidAmount, p.dueDate)
+        }));
+    }
+
     async getById(id: string, tenantId: string) {
         const [payment] = await db
             .select({

@@ -1,0 +1,5 @@
+Client Name,PAN Number,Contact No,Email ID,Office Address,Notes,Subscriptions
+Reliance Industries,ABCDE1234F,9876543210,contact@ril.com,Mumbai India,VIP Client,"GST, ITR"
+Tata Motors,VWXYZ9876G,9988776655,info@tata.com,Pune India,Auto division,"GST, TDS"
+Infosys,QWERT5432H,9998887776,,Bangalore,IT Services,"ITR"
+Empty PAN Test,,1112223334,test@test.com,Delhi,Should generate random PAN,
