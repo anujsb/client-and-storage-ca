@@ -1,6 +1,8 @@
 import { DocumentStatusBadge } from "./DocumentStatusBadge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { StorageTreeNode } from "@/types/storage";
 
 interface ActiveCheckout {
     id: string;
@@ -18,10 +20,12 @@ interface DocumentData {
     client: {
         name: string;
     };
+    locationId?: string | null;
     location: {
         name: string;
     } | null;
     activeCheckout: ActiveCheckout | null;
+    createdAt: string | Date;
 }
 
 interface DocumentTableProps {
@@ -40,6 +44,36 @@ export function DocumentTable({ documents }: DocumentTableProps) {
 
     const router = useRouter();
 
+    const [locationMap, setLocationMap] = useState<Record<string, string>>({});
+
+    useEffect(() => {
+        const fetchTree = async () => {
+            try {
+                const res = await fetch("/api/storage-locations");
+                if (res.ok) {
+                    const tree: StorageTreeNode[] = await res.json();
+                    const map: Record<string, string> = {};
+                    
+                    const traverse = (nodes: StorageTreeNode[], currentPath: string) => {
+                        for (const node of nodes) {
+                            const path = currentPath ? `${currentPath} > ${node.name}` : node.name;
+                            map[node.id] = path;
+                            if (node.children) {
+                                traverse(node.children, path);
+                            }
+                        }
+                    };
+                    
+                    traverse(tree, "");
+                    setLocationMap(map);
+                }
+            } catch (e) {
+                console.error("Failed to load storage locations", e);
+            }
+        };
+        fetchTree();
+    }, []);
+
     return (
         <div className="w-full overflow-x-auto">
             <table className="w-full text-left text-[13px] min-w-[800px] md:min-w-full">
@@ -48,6 +82,7 @@ export function DocumentTable({ documents }: DocumentTableProps) {
                         <th className="px-5 py-3">Document Code / Name</th>
                         <th className="px-5 py-3">Client</th>
                         <th className="px-5 py-3">Doc Type</th>
+                        <th className="px-5 py-3">Date Added</th>
                         <th className="px-5 py-3">Status</th>
                         <th className="px-5 py-3">Current Holder / Location</th>
                     </tr>
@@ -55,7 +90,7 @@ export function DocumentTable({ documents }: DocumentTableProps) {
                 <tbody className="divide-y divide-border-light">
                     {documents.length === 0 ? (
                         <tr>
-                            <td colSpan={5} className="px-5 py-8 text-center text-text-muted">
+                            <td colSpan={6} className="px-5 py-8 text-center text-text-muted">
                                 No documents found.
                             </td>
                         </tr>
@@ -72,6 +107,9 @@ export function DocumentTable({ documents }: DocumentTableProps) {
                                 </td>
                                 <td className="px-5 py-3.5 align-top text-text-dark">{doc.client.name}</td>
                                 <td className="px-5 py-3.5 align-top text-text-dark">{doc.docType}</td>
+                                <td className="px-5 py-3.5 align-top text-text-dark">
+                                    {new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(doc.createdAt))}
+                                </td>
                                 <td className="px-5 py-3.5 align-top">
                                     <DocumentStatusBadge status={doc.status} />
                                 </td>
@@ -100,7 +138,9 @@ export function DocumentTable({ documents }: DocumentTableProps) {
                                         </div>
                                     ) : (
                                         <div>
-                                            <div className="font-semibold text-text-dark">{doc.location?.name || "Unassigned"}</div>
+                                            <div className="font-semibold text-text-dark text-xs break-words">
+                                                {doc.locationId && locationMap[doc.locationId] ? locationMap[doc.locationId] : (doc.location?.name || "Unassigned")}
+                                            </div>
                                             <div className="text-[11px] text-text-muted">In Office</div>
                                         </div>
                                     )}
