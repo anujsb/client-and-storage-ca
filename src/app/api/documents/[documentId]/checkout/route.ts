@@ -34,6 +34,7 @@ export async function POST(
             return NextResponse.json({ error: error.issues }, { status: 400 });
         }
         if (error instanceof Error && error.message.includes("not found")) {
+            console.error("[CHECKOUT_NOT_FOUND_ERROR]", error);
             return NextResponse.json({ error: error.message }, { status: 404 });
         }
         if (error instanceof Error && error.message.includes("already checked out")) {

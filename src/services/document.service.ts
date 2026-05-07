@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { documents, clients, storageLocations, fileCheckouts, employees } from "@/lib/db/schema";
-import { eq, and, desc, count } from "drizzle-orm";
+import { eq, and, desc, count, isNull } from "drizzle-orm";
 import { CreateDocumentInput, UpdateDocumentInput } from "@/lib/validations/document";
 
 export class DocumentService {
@@ -44,7 +44,10 @@ export class DocumentService {
             .from(documents)
             .innerJoin(clients, eq(documents.clientId, clients.id))
             .leftJoin(storageLocations, eq(documents.locationId, storageLocations.id))
-            .leftJoin(fileCheckouts, and(eq(fileCheckouts.documentId, documents.id), eq(documents.status, "checked_out"))) // Simplification for now, rely on status
+            .leftJoin(fileCheckouts, and(
+                eq(fileCheckouts.documentId, documents.id),
+                isNull(fileCheckouts.checkedInAt)
+            ))
             .leftJoin(employees, eq(fileCheckouts.employeeId, employees.id))
             .where(and(...conditions))
             .orderBy(desc(documents.createdAt));
@@ -85,7 +88,10 @@ export class DocumentService {
             .from(documents)
             .innerJoin(clients, eq(documents.clientId, clients.id))
             .leftJoin(storageLocations, eq(documents.locationId, storageLocations.id))
-            .leftJoin(fileCheckouts, and(eq(fileCheckouts.documentId, documents.id), eq(documents.status, "checked_out")))
+            .leftJoin(fileCheckouts, and(
+                eq(fileCheckouts.documentId, documents.id),
+                isNull(fileCheckouts.checkedInAt)
+            ))
             .leftJoin(employees, eq(fileCheckouts.employeeId, employees.id))
             .where(and(eq(documents.id, id), eq(documents.tenantId, tenantId)))
             .limit(1);

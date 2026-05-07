@@ -15,40 +15,54 @@ import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { CheckoutDialog } from "@/components/documents/CheckoutDialog";
 import { CheckinDialog } from "@/components/documents/CheckinDialog";
+import { MarkMissingDialog } from "@/components/documents/MarkMissingDialog";
 
 export function DocumentDetailClient({ documentId }: { documentId: string }) {
     const [doc, setDoc] = useState<any>(null);
+    const [trackingEvents, setTrackingEvents] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     const [isCheckinOpen, setIsCheckinOpen] = useState(false);
+    const [isMissingOpen, setIsMissingOpen] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
-        const fetchDoc = async () => {
+        const fetchDocAndTracking = async () => {
             try {
-                const res = await fetch(`/api/documents/${documentId}`);
-                if (res.ok) {
-                    const data = await res.json();
-                    setDoc(data);
-                } else {
+                // Fetch document
+                const docRes = await fetch(`/api/documents/${documentId}`);
+                if (!docRes.ok) {
                     toast.error("Failed to load document");
+                    return;
+                }
+                const data = await docRes.json();
+                setDoc(data);
+
+                // Fetch tracking history for this specific document
+                const trackingRes = await fetch(`/api/documents/tracking?documentId=${documentId}`);
+                if (trackingRes.ok) {
+                    const events = await trackingRes.json();
+                    setTrackingEvents(events);
                 }
             } catch (error) {
-                toast.error("Error loading document");
+                toast.error("Error loading document data");
             } finally {
                 setIsLoading(false);
             }
         };
-        fetchDoc();
+        fetchDocAndTracking();
     }, [documentId]);
 
     const handleRefresh = () => {
-        setIsLoading(true);
         fetch(`/api/documents/${documentId}`)
             .then((res) => res.json())
-            .then((data) => setDoc(data))
-            .catch(() => toast.error("Error reloading document"))
-            .finally(() => setIsLoading(false));
+            .then((data) => {
+                setDoc(data);
+                fetch(`/api/documents/tracking?documentId=${documentId}`)
+                    .then(res => res.json())
+                    .then(events => setTrackingEvents(events));
+            })
+            .catch(() => toast.error("Error reloading document"));
     };
 
     if (isLoading) {
@@ -157,11 +171,15 @@ export function DocumentDetailClient({ documentId }: { documentId: string }) {
                                 </div>
                                 <span className="font-bold text-[13px] text-brand-900">Return</span>
                             </Button>
-                            <Button variant="outline" className="h-auto py-4 flex-col gap-3 rounded-2xl border-border-base hover:border-red-200 hover:bg-red-50">
-                                <div className="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center">
+                            <Button 
+                                variant="outline" 
+                                className={`h-auto py-4 flex-col gap-3 rounded-2xl border-border-base ${doc.status === 'missing' ? 'hover:border-emerald-200 hover:bg-emerald-50' : 'hover:border-red-200 hover:bg-red-50'}`}
+                                onClick={() => setIsMissingOpen(true)}
+                            >
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${doc.status === 'missing' ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}`}>
                                     <AlertTriangle className="w-5 h-5" />
                                 </div>
-                                <span className="font-bold text-[13px] text-brand-900">Mark Missing</span>
+                                <span className="font-bold text-[13px] text-brand-900">{doc.status === 'missing' ? 'Mark Found' : 'Mark Missing'}</span>
                             </Button>
                             <Button variant="outline" className="h-auto py-4 flex-col gap-3 rounded-2xl border-border-base hover:border-brand-200 hover:bg-brand-50">
                                 <div className="w-10 h-10 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center">
@@ -182,6 +200,32 @@ export function DocumentDetailClient({ documentId }: { documentId: string }) {
                         </div>
 
                         <div className="space-y-0 relative before:absolute before:inset-0 before:ml-2.5 before:-translate-x-px md:before:translate-x-0 before:h-full before:w-0.5 before:bg-border-base">
+                            {trackingEvents.map(event => {
+                                const isOut = event.type === 'checked_out';
+                                const initials = event.employeeName.split(' ').map((n: string) => n[0]).join('').substring(0,2).toUpperCase();
+                                return (
+                                    <div key={event.id} className="relative flex items-center justify-between md:justify-normal group is-active mb-8">
+                                        <div className={`flex items-center justify-center w-5 h-5 rounded-full border-[3px] border-white shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 absolute left-0 ${isOut ? 'bg-amber-500' : 'bg-green-500'}`} />
+                                        <div className="w-full pl-8">
+                                            <div className="flex justify-between items-center mb-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${isOut ? 'text-amber-600 bg-amber-50' : 'text-green-600 bg-green-50'}`}>
+                                                        {isOut ? 'Checked Out' : 'Checked In'}
+                                                    </span>
+                                                </div>
+                                                <span className="text-xs text-text-muted font-medium">
+                                                    {new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(event.timestamp))}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 text-xs text-text-muted font-medium mt-2">
+                                                <Avatar className="w-4 h-4"><AvatarFallback className="bg-slate-200 text-[8px]">{initials}</AvatarFallback></Avatar>
+                                                {event.employeeName}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            })}
+
                             <div className="relative flex items-center justify-between md:justify-normal group is-active mb-8">
                                 <div className="flex items-center justify-center w-5 h-5 rounded-full border-[3px] border-white bg-brand-500 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 absolute left-0" />
                                 <div className="w-full pl-8">
@@ -195,10 +239,6 @@ export function DocumentDetailClient({ documentId }: { documentId: string }) {
                                         </span>
                                     </div>
                                     <div className="text-[13px] text-text-dark mb-2">Initial filing of document.</div>
-                                    <div className="flex items-center gap-1.5 text-xs text-text-muted font-medium">
-                                        <Avatar className="w-4 h-4"><AvatarFallback className="bg-slate-200 text-[8px]">AD</AvatarFallback></Avatar>
-                                        Admin User
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -217,7 +257,35 @@ export function DocumentDetailClient({ documentId }: { documentId: string }) {
                             </Button>
                         </div>
                         
-                        {doc.location ? (
+                        {doc.status === 'checked_out' && doc.activeCheckout ? (
+                            <div className="bg-amber-50 rounded-xl p-4 border border-amber-200 space-y-3">
+                                <div className="flex items-center gap-2 text-amber-800 text-[13px] font-bold">
+                                    <LogOut className="w-4 h-4" />
+                                    Currently Checked Out
+                                </div>
+                                <div className="flex items-center gap-3 bg-white p-3 rounded-lg border border-amber-100 shadow-sm">
+                                    <Avatar className="w-8 h-8 border border-amber-200">
+                                        <AvatarFallback className="bg-amber-100 text-amber-700 text-[11px] font-bold">
+                                            {doc.activeCheckout.employeeName.split(' ').map((n: string) => n[0]).join('').substring(0,2).toUpperCase()}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <div className="text-sm font-bold text-brand-900">{doc.activeCheckout.employeeName}</div>
+                                        <div className="text-[11px] text-amber-700 font-medium">Since {new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(doc.activeCheckout.checkedOutAt))}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : doc.status === 'missing' ? (
+                            <div className="bg-red-50 rounded-xl p-4 border border-red-200 space-y-2">
+                                <div className="flex items-center gap-2 text-red-800 text-[13px] font-bold">
+                                    <AlertTriangle className="w-4 h-4" />
+                                    Marked Missing
+                                </div>
+                                <div className="text-[12px] text-red-700 font-medium pl-6">
+                                    Location unknown. Please notify the team if found.
+                                </div>
+                            </div>
+                        ) : doc.location ? (
                             <div className="bg-bg-main rounded-xl p-4 border border-border-light space-y-2">
                                 <div className="flex items-center gap-2 text-text-muted text-[13px] font-medium">
                                     <Building2 className="w-3.5 h-3.5" />
@@ -227,13 +295,13 @@ export function DocumentDetailClient({ documentId }: { documentId: string }) {
                                     <Database className="w-3.5 h-3.5" />
                                     {doc.location.name}
                                 </div>
-                                <div className="flex items-center gap-2 text-brand-700 text-[13px] font-bold pl-8 bg-brand-50 py-1 px-2 rounded-lg w-fit">
+                                <div className="flex items-center gap-2 text-brand-700 text-[13px] font-bold pl-8 bg-brand-50 py-1 px-2 rounded-lg w-fit mt-1">
                                     <Box className="w-3.5 h-3.5" />
                                     Assigned Here
                                 </div>
                             </div>
                         ) : (
-                            <div className="text-[13px] text-text-muted text-center py-4">No location assigned.</div>
+                            <div className="text-[13px] text-text-muted text-center py-4 bg-bg-main rounded-xl border border-dashed border-border-base">No location assigned.</div>
                         )}
                     </div>
 
@@ -244,11 +312,13 @@ export function DocumentDetailClient({ documentId }: { documentId: string }) {
                         <div className="mb-6">
                             <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Tags</div>
                             <div className="flex flex-wrap gap-2">
-                                {(doc.tags || ["#Audit", "#Original"]).map((tag: string, i: number) => (
+                                {doc.tags && doc.tags.length > 0 ? doc.tags.map((tag: string, i: number) => (
                                     <span key={i} className="bg-slate-100 text-slate-700 text-xs font-semibold px-2.5 py-1 rounded-md">
                                         {tag.startsWith("#") ? tag : `#${tag}`}
                                     </span>
-                                ))}
+                                )) : (
+                                    <span className="text-xs text-text-muted">No tags added.</span>
+                                )}
                                 <Button variant="outline" size="sm" className="h-6 px-2 text-[10px] font-semibold text-text-muted rounded-md border-dashed">
                                     + Add Tag
                                 </Button>
@@ -258,22 +328,13 @@ export function DocumentDetailClient({ documentId }: { documentId: string }) {
                         <div className="mb-6">
                             <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Custom Fields</div>
                             <div className="space-y-2 text-[13px]">
-                                {doc.customFields ? Object.entries(doc.customFields).map(([key, value]) => (
+                                {doc.customFields && Object.keys(doc.customFields).length > 0 ? Object.entries(doc.customFields).map(([key, value]) => (
                                     <div key={key} className="flex justify-between border-b border-border-light pb-2">
                                         <span className="text-text-muted">{key}</span>
                                         <span className="font-bold text-brand-900">{value as string}</span>
                                     </div>
                                 )) : (
-                                    <>
-                                        <div className="flex justify-between border-b border-border-light pb-2">
-                                            <span className="text-text-muted">Department</span>
-                                            <span className="font-bold text-brand-900">Assurance</span>
-                                        </div>
-                                        <div className="flex justify-between border-b border-border-light pb-2">
-                                            <span className="text-text-muted">Retention Period</span>
-                                            <span className="font-bold text-brand-900">8 Years</span>
-                                        </div>
-                                    </>
+                                    <div className="text-xs text-text-muted border-b border-border-light pb-2">No custom fields defined.</div>
                                 )}
                             </div>
                         </div>
@@ -281,13 +342,13 @@ export function DocumentDetailClient({ documentId }: { documentId: string }) {
                         <div>
                             <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Recent Notes</div>
                             <div className="space-y-3">
-                                <div className="bg-bg-main p-3 rounded-xl border border-border-light">
-                                    <div className="flex justify-between items-center mb-1">
-                                        <span className="text-xs font-bold text-brand-900">System Note</span>
-                                        <span className="text-[10px] text-text-muted">Just now</span>
+                                {doc.notes ? (
+                                    <div className="bg-bg-main p-3 rounded-xl border border-border-light">
+                                        <p className="text-[11px] text-text-dark">{doc.notes}</p>
                                     </div>
-                                    <p className="text-[11px] text-text-dark">Document created in registry.</p>
-                                </div>
+                                ) : (
+                                    <div className="text-xs text-text-muted">No recent notes.</div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -307,6 +368,14 @@ export function DocumentDetailClient({ documentId }: { documentId: string }) {
                 open={isCheckinOpen} 
                 onOpenChange={setIsCheckinOpen} 
                 onSuccess={handleRefresh} 
+            />
+
+            <MarkMissingDialog
+                documentId={documentId}
+                currentStatus={doc.status}
+                open={isMissingOpen}
+                onOpenChange={setIsMissingOpen}
+                onSuccess={handleRefresh}
             />
         </div>
     );
